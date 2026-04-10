@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCED Service Request</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+</head>
+
+
+
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="max-w-6xl mx-auto p-4">
+
+        <div class="flex items-center space-x-4">
+            <img src="./images/KNUST logo.png" alt="KNUST Crest" class="w-22 h-26">
+
+            <h1 class="font-bold text-2xl pt-4">KNUST Central Energy Database</h1>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-4 space-y-6">
+            <div class="text-center">
+                <h1 class="font-bold text-3xl pt-4">Service Request Form</h1>
+
+                <p class="text-center font-light">Fill out the form below to submit a new service request.</p>
+            </div>
+
+            <p class="font-light text-red-700">Do NOT use this form for emergencies! Instead, refer to the information
+                <span class="underline underline-offset-2 hover:cursor-pointer">here</span>.
+            </p>
+
+            <div id="formContainer">
+                <form class="space-y-6">
+                    <div class="flex flex-col space-y-1">
+                        <label for="issue" class="font-medium">Issue</label>
+                        <input type="text" id="issue" placeholder="e.g. Faulty A/C"
+                            class="font-light p-2 outline-1 outline-gray-300 bg-slate-50 rounded-md focus:outline-2 focus:outline-black placeholder:font-light"
+                            required>
+                    </div>
+
+                    <div class="flex flex-col space-y-2">
+                        <label for="description" class="font-medium">Description - please provide as much detail as
+                            possible</label>
+                        <textarea id="description" placeholder="Describe the issue"
+                            class="font-light min-h-28 p-2 outline-1 outline-gray-300 bg-slate-50 rounded-md focus:outline-2 focus:outline-black placeholder:font-light"
+                            required></textarea>
+                    </div>
+
+                    <div class="flex flex-col space-y-2">
+                        <label for="location" class="font-medium">Location</label>
+                        <input id="location" placeholder="e.g. Petroleum Building Room 101"
+                            class="font-light p-2 outline-1 outline-gray-300 bg-slate-50 rounded-md focus:outline-2 focus:outline-black placeholder:font-light"
+                            required>
+                    </div>
+
+                    <button id="submitBtn" type="submit"
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 flex items-center justify-center gap-2">
+
+                        <span id="btnText">Submit Request</span>
+
+                        <span id="spinner"
+                            class="hidden h-4 w-4 my-1 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+<script>
+    const form = document.querySelector("form");
+    const btn = document.getElementById("submitBtn");
+    const spinner = document.getElementById("spinner");
+    const btnText = document.getElementById("btnText");
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        spinner.classList.remove("hidden");
+        btnText.classList.add("hidden");
+        btn.disabled = true;
+
+        setTimeout(() => {
+            spinner.classList.add("hidden");
+            btnText.classList.remove("hidden");
+            btn.disabled = false;
+
+            form.reset();
+
+            document.getElementById("formContainer").innerHTML = `
+                <div class="bg-white p-8 rounded-lg text-center space-y-2">
+                    
+                    <h2 class="text-lg font-semibold">Request Submitted</h2>
+                    
+                    <p class="font-light">
+                        Your request has been received. Our team will get to it shortly.
+                    </p>
+                </div>
+            `;
+        }, 3000);
+    });
+</script>
+
+</html>
