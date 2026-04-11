@@ -57,14 +57,21 @@
                             required>
                     </div>
 
-                    <button id="submitBtn" type="submit"
-                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 flex items-center justify-center gap-2">
+                    <div>
+                        <p id="errorMsg"
+                            class="text-red-600 text-center mb-2 opacity-0 -translate-y-2 transition-all duration-300">
+                            Failed to submit request. Try again.
+                        </p>
 
-                        <span id="btnText">Submit Request</span>
+                        <button id="submitBtn" type="submit"
+                            class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 flex items-center justify-center gap-2">
 
-                        <span id="spinner"
-                            class="hidden h-4 w-4 my-1 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                    </button>
+                            <span id="btnText">Submit Request</span>
+
+                            <span id="spinner"
+                                class="hidden h-4 w-4 my-1 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -78,32 +85,58 @@
     const btn = document.getElementById("submitBtn");
     const spinner = document.getElementById("spinner");
     const btnText = document.getElementById("btnText");
+    const errorText = document.getElementById("errorMsg");
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         spinner.classList.remove("hidden");
         btnText.classList.add("hidden");
         btn.disabled = true;
 
-        setTimeout(() => {
-            spinner.classList.add("hidden");
-            btnText.classList.remove("hidden");
-            btn.disabled = false;
+        const data = {
+            issue: document.getElementById("issue").value,
+            description: document.getElementById("description").value,
+            location: document.getElementById("location").value
+        };
 
-            form.reset();
+        try {
+            errorText.classList.add("opacity-0", "-translate-y-2");
+            errorText.classList.remove("opacity-100", "translate-y-0");
+
+            const res = await fetch("http://localhost:8000/api/v1/service-requests", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!res.ok) {
+                throw new Error("Request failed");
+            }
 
             document.getElementById("formContainer").innerHTML = `
                 <div class="bg-white p-8 rounded-lg text-center space-y-2">
-                    
                     <h2 class="text-lg font-semibold">Request Submitted</h2>
-                    
                     <p class="font-light">
                         Your request has been received. Our team will get to it shortly.
                     </p>
                 </div>
             `;
-        }, 3000);
+
+        } catch (err) {
+            console.error(err);
+
+            errorText.classList.remove("opacity-0", "-translate-y-2");
+            errorText.classList.add("opacity-100", "translate-y-0");
+
+            spinner.classList.add("hidden");
+            btnText.classList.remove("hidden");
+            btn.disabled = false;
+            errorText.classList.remove("hidden");
+            errorText.classList.add("opacity-100", "translate-y-0");
+        }
     });
 </script>
 
