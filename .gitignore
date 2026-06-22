@@ -7,6 +7,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+.tanstack/tmp
 
 # editor / os
 .DS_Store

@@ -9,26 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as SupportIndexRouteImport } from './routes/support/index'
-import { Route as ServiceRequestFormIndexRouteImport } from './routes/service-request-form/index'
+import { Route as PublicRouteImport } from './routes/_public'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
-import { Route as FaqsIndexRouteImport } from './routes/faqs/index'
-import { Route as BlogIndexRouteImport } from './routes/blog/index'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicSupportIndexRouteImport } from './routes/_public/support/index'
+import { Route as PublicServiceRequestFormIndexRouteImport } from './routes/_public/service-request-form/index'
+import { Route as PublicFaqsIndexRouteImport } from './routes/_public/faqs/index'
+import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SupportIndexRoute = SupportIndexRouteImport.update({
-  id: '/support/',
-  path: '/support/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServiceRequestFormIndexRoute = ServiceRequestFormIndexRouteImport.update({
-  id: '/service-request-form/',
-  path: '/service-request-form/',
+const PublicRoute = PublicRouteImport.update({
+  id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginIndexRoute = LoginIndexRouteImport.update({
@@ -36,93 +26,93 @@ const LoginIndexRoute = LoginIndexRouteImport.update({
   path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FaqsIndexRoute = FaqsIndexRouteImport.update({
+const PublicIndexRoute = PublicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSupportIndexRoute = PublicSupportIndexRouteImport.update({
+  id: '/support/',
+  path: '/support/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicServiceRequestFormIndexRoute =
+  PublicServiceRequestFormIndexRouteImport.update({
+    id: '/service-request-form/',
+    path: '/service-request-form/',
+    getParentRoute: () => PublicRoute,
+  } as any)
+const PublicFaqsIndexRoute = PublicFaqsIndexRouteImport.update({
   id: '/faqs/',
   path: '/faqs/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PublicRoute,
 } as any)
-const BlogIndexRoute = BlogIndexRouteImport.update({
+const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => PublicRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/blog/': typeof BlogIndexRoute
-  '/faqs/': typeof FaqsIndexRoute
+  '/': typeof PublicIndexRoute
   '/login/': typeof LoginIndexRoute
-  '/service-request-form/': typeof ServiceRequestFormIndexRoute
-  '/support/': typeof SupportIndexRoute
+  '/blog/': typeof PublicBlogIndexRoute
+  '/faqs/': typeof PublicFaqsIndexRoute
+  '/service-request-form/': typeof PublicServiceRequestFormIndexRoute
+  '/support/': typeof PublicSupportIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/blog': typeof BlogIndexRoute
-  '/faqs': typeof FaqsIndexRoute
+  '/': typeof PublicIndexRoute
   '/login': typeof LoginIndexRoute
-  '/service-request-form': typeof ServiceRequestFormIndexRoute
-  '/support': typeof SupportIndexRoute
+  '/blog': typeof PublicBlogIndexRoute
+  '/faqs': typeof PublicFaqsIndexRoute
+  '/service-request-form': typeof PublicServiceRequestFormIndexRoute
+  '/support': typeof PublicSupportIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/blog/': typeof BlogIndexRoute
-  '/faqs/': typeof FaqsIndexRoute
+  '/_public': typeof PublicRouteWithChildren
+  '/_public/': typeof PublicIndexRoute
   '/login/': typeof LoginIndexRoute
-  '/service-request-form/': typeof ServiceRequestFormIndexRoute
-  '/support/': typeof SupportIndexRoute
+  '/_public/blog/': typeof PublicBlogIndexRoute
+  '/_public/faqs/': typeof PublicFaqsIndexRoute
+  '/_public/service-request-form/': typeof PublicServiceRequestFormIndexRoute
+  '/_public/support/': typeof PublicSupportIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login/'
     | '/blog/'
     | '/faqs/'
-    | '/login/'
     | '/service-request-form/'
     | '/support/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/blog' | '/faqs' | '/login' | '/service-request-form' | '/support'
+  to: '/' | '/login' | '/blog' | '/faqs' | '/service-request-form' | '/support'
   id:
     | '__root__'
-    | '/'
-    | '/blog/'
-    | '/faqs/'
+    | '/_public'
+    | '/_public/'
     | '/login/'
-    | '/service-request-form/'
-    | '/support/'
+    | '/_public/blog/'
+    | '/_public/faqs/'
+    | '/_public/service-request-form/'
+    | '/_public/support/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  BlogIndexRoute: typeof BlogIndexRoute
-  FaqsIndexRoute: typeof FaqsIndexRoute
+  PublicRoute: typeof PublicRouteWithChildren
   LoginIndexRoute: typeof LoginIndexRoute
-  ServiceRequestFormIndexRoute: typeof ServiceRequestFormIndexRoute
-  SupportIndexRoute: typeof SupportIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_public': {
+      id: '/_public'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/support/': {
-      id: '/support/'
-      path: '/support'
-      fullPath: '/support/'
-      preLoaderRoute: typeof SupportIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/service-request-form/': {
-      id: '/service-request-form/'
-      path: '/service-request-form'
-      fullPath: '/service-request-form/'
-      preLoaderRoute: typeof ServiceRequestFormIndexRouteImport
+      preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login/': {
@@ -132,30 +122,66 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/faqs/': {
-      id: '/faqs/'
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/support/': {
+      id: '/_public/support/'
+      path: '/support'
+      fullPath: '/support/'
+      preLoaderRoute: typeof PublicSupportIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/service-request-form/': {
+      id: '/_public/service-request-form/'
+      path: '/service-request-form'
+      fullPath: '/service-request-form/'
+      preLoaderRoute: typeof PublicServiceRequestFormIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/faqs/': {
+      id: '/_public/faqs/'
       path: '/faqs'
       fullPath: '/faqs/'
-      preLoaderRoute: typeof FaqsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PublicFaqsIndexRouteImport
+      parentRoute: typeof PublicRoute
     }
-    '/blog/': {
-      id: '/blog/'
+    '/_public/blog/': {
+      id: '/_public/blog/'
       path: '/blog'
       fullPath: '/blog/'
-      preLoaderRoute: typeof BlogIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof PublicBlogIndexRouteImport
+      parentRoute: typeof PublicRoute
     }
   }
 }
 
+interface PublicRouteChildren {
+  PublicIndexRoute: typeof PublicIndexRoute
+  PublicBlogIndexRoute: typeof PublicBlogIndexRoute
+  PublicFaqsIndexRoute: typeof PublicFaqsIndexRoute
+  PublicServiceRequestFormIndexRoute: typeof PublicServiceRequestFormIndexRoute
+  PublicSupportIndexRoute: typeof PublicSupportIndexRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicIndexRoute: PublicIndexRoute,
+  PublicBlogIndexRoute: PublicBlogIndexRoute,
+  PublicFaqsIndexRoute: PublicFaqsIndexRoute,
+  PublicServiceRequestFormIndexRoute: PublicServiceRequestFormIndexRoute,
+  PublicSupportIndexRoute: PublicSupportIndexRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  BlogIndexRoute: BlogIndexRoute,
-  FaqsIndexRoute: FaqsIndexRoute,
+  PublicRoute: PublicRouteWithChildren,
   LoginIndexRoute: LoginIndexRoute,
-  ServiceRequestFormIndexRoute: ServiceRequestFormIndexRoute,
-  SupportIndexRoute: SupportIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

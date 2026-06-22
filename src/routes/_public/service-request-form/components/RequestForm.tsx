@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { db, TABLE, uploadImage } from "../../../lib/supabase";
+import { db, TABLE, uploadImage } from "../../../../lib/supabase";
 import {
   serviceRequestSchema,
   JURISDICTIONS,
@@ -329,8 +329,8 @@ export function RequestForm() {
           <div>
             <p
               className={`text-error text-center mb-2 transition-all duration-300 ${submitError
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 -translate-y-2"
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 -translate-y-2"
                 }`}
             >
               Failed to submit request. Try again.
@@ -343,7 +343,7 @@ export function RequestForm() {
                     type="button"
                     onClick={goBack}
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 rounded-control border border-primary text-primary hover:bg-primary-soft focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-white disabled:opacity-70 flex items-center gap-2 font-[500] transition-all duration-150"
+                    className="px-6 py-2.5 rounded-control border border-primary text-primary hover:bg-primary-soft focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-white disabled:opacity-70 flex items-center gap-2 font-medium transition-all duration-150"
                   >
                     <ArrowLeftIcon size={16} />
                     Back
@@ -357,7 +357,7 @@ export function RequestForm() {
                     {isSubmitting ? (
                       <span className="h-4 w-4 my-1 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     ) : (
-                      <span className="font-[500]">Submit Request</span>
+                      <span className="font-medium">Submit Request</span>
                     )}
                   </button>
                 </div>
