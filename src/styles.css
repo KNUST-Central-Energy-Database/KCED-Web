@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+    /* Mirrors kced_mobile lib/core/theme/app_theme.dart (ColorScheme) */
+    --color-primary: #1B6E44;
+    --color-primary-hover: #155737;
+    --color-primary-soft: #DDF0E4;
+    /* primaryContainer */
+    --color-on-soft: #0F4429;
+    /* onPrimaryContainer */
+    --color-ink: #1A1A1A;
+    /* onSurface */
+    --color-muted: #6B6B6B;
+    /* icon / hint grey */
+    --color-outline: #E2E4E1;
+    /* input + card borders */
+    --color-card: #F1F3F1;
+    /* surfaceContainerHighest */
+    --color-error: #BA1A1A;
+
+    --font-sans: "Instrument Sans", sans-serif;
+    --font-display: "Red Hat Display", sans-serif;
+
+    --radius-control: 0.75rem;
+    /* 12px — matches app's BorderRadius.circular(12) */
+}
+
+@font-face {
+    font-family: "Instrument Sans";
+    src: url("/assets/fonts/InstrumentSans-VariableFont_wdth,wght.ttf") format("truetype");
+    font-weight: 100 900;
+    font-stretch: 75% 100%;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Red Hat Display";
+    src: url("/assets/fonts/RedHatDisplay-VariableFont_wght.ttf") format("truetype");
+    font-weight: 100 900;
+    font-display: swap;
+}
+
+html {
+    /* Scales the whole rem-based UI to ~90% — mimics a 90% browser zoom
+       (text, padding, gaps, and max-widths all shrink proportionally). */
+    /* font-size: 90%; */
+}
+
+body {
+    background-color: #ffffff;
+    /* app scaffoldBackgroundColor: Colors.white */
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+}
