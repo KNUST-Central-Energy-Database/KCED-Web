@@ -1,20 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { TriangleAlert, X } from "lucide-react";
 import { RequestForm } from "./components/RequestForm";
 
 export const Route = createFileRoute("/service-request-form/")({
   component: ServiceRequestFormPage,
 });
-
-const emergencyContacts = [
-  { label: "Fire Service", number: "192", href: "tel:192" },
-  {
-    label: "KNUST Security",
-    number: "+233 32 206 0826",
-    href: "tel:+233322060826",
-  },
-];
 
 function ServiceRequestFormPage() {
   const [showEmergency, setShowEmergency] = useState(false);

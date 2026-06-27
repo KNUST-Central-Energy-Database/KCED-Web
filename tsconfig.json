@@ -16,26 +16,22 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types": [
-      "vite/client"
+      "vite/client",
+      "node"
     ],
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
       ]
     },
-    "ignoreDeprecations": "6.0"
   },
   "include": [
     "src",
     "vite.config.ts"
-  ],
-  "types": [
-    "node"
   ]
 }
