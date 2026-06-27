@@ -101,7 +101,7 @@ export function RequestForm() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="description">
+            <Label htmlFor="description" className="flex flex-wrap gap-x-1">
               Description{" "}
               <span className="font-light text-muted-foreground">
                 — please provide as much detail as possible

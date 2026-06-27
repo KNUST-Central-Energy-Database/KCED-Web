@@ -127,12 +127,12 @@ function HomePage() {
                 Use KCED to check the status of your work order at any time.
               </p>
 
-              <a
-                href="#kced-portal"
+              <Link
+                to="/track-service-request"
                 className="mt-2 inline-flex items-center gap-2 font-medium underline underline-offset-4 text-lg"
               >
                 Track your request →
-              </a>
+              </Link>
             </div>
 
           </div>

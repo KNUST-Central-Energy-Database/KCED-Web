@@ -53,7 +53,7 @@ function ServiceRequestFormPage() {
         </div>
 
         {/* Form card */}
-        <div className="border border-outline rounded-2xl p-8 shadow-sm">
+        <div className="border border-outline rounded-2xl p-4 md:p-8">
           <RequestForm />
         </div>
       </main>

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as TrackServiceRequestIndexRouteImport } from './routes/track-service-request/index'
 import { Route as ServiceRequestFormIndexRouteImport } from './routes/service-request-form/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
@@ -21,6 +22,12 @@ const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrackServiceRequestIndexRoute =
+  TrackServiceRequestIndexRouteImport.update({
+    id: '/track-service-request/',
+    path: '/track-service-request/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ServiceRequestFormIndexRoute = ServiceRequestFormIndexRouteImport.update({
   id: '/service-request-form/',
   path: '/service-request-form/',
@@ -56,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/login/': typeof LoginIndexRoute
   '/service-request-form/': typeof ServiceRequestFormIndexRoute
+  '/track-service-request/': typeof TrackServiceRequestIndexRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/faqs/': typeof PublicFaqsIndexRoute
   '/support/': typeof PublicSupportIndexRoute
@@ -64,6 +72,7 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/login': typeof LoginIndexRoute
   '/service-request-form': typeof ServiceRequestFormIndexRoute
+  '/track-service-request': typeof TrackServiceRequestIndexRoute
   '/blog': typeof PublicBlogIndexRoute
   '/faqs': typeof PublicFaqsIndexRoute
   '/support': typeof PublicSupportIndexRoute
@@ -74,6 +83,7 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/login/': typeof LoginIndexRoute
   '/service-request-form/': typeof ServiceRequestFormIndexRoute
+  '/track-service-request/': typeof TrackServiceRequestIndexRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/_public/faqs/': typeof PublicFaqsIndexRoute
   '/_public/support/': typeof PublicSupportIndexRoute
@@ -84,17 +94,26 @@ export interface FileRouteTypes {
     | '/'
     | '/login/'
     | '/service-request-form/'
+    | '/track-service-request/'
     | '/blog/'
     | '/faqs/'
     | '/support/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/service-request-form' | '/blog' | '/faqs' | '/support'
+  to:
+    | '/'
+    | '/login'
+    | '/service-request-form'
+    | '/track-service-request'
+    | '/blog'
+    | '/faqs'
+    | '/support'
   id:
     | '__root__'
     | '/_public'
     | '/_public/'
     | '/login/'
     | '/service-request-form/'
+    | '/track-service-request/'
     | '/_public/blog/'
     | '/_public/faqs/'
     | '/_public/support/'
@@ -104,6 +123,7 @@ export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   LoginIndexRoute: typeof LoginIndexRoute
   ServiceRequestFormIndexRoute: typeof ServiceRequestFormIndexRoute
+  TrackServiceRequestIndexRoute: typeof TrackServiceRequestIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -113,6 +133,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track-service-request/': {
+      id: '/track-service-request/'
+      path: '/track-service-request'
+      fullPath: '/track-service-request/'
+      preLoaderRoute: typeof TrackServiceRequestIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/service-request-form/': {
@@ -181,6 +208,7 @@ const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   LoginIndexRoute: LoginIndexRoute,
   ServiceRequestFormIndexRoute: ServiceRequestFormIndexRoute,
+  TrackServiceRequestIndexRoute: TrackServiceRequestIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
