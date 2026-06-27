@@ -10,15 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as ServiceRequestFormIndexRouteImport } from './routes/service-request-form/index'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicSupportIndexRouteImport } from './routes/_public/support/index'
-import { Route as PublicServiceRequestFormIndexRouteImport } from './routes/_public/service-request-form/index'
 import { Route as PublicFaqsIndexRouteImport } from './routes/_public/faqs/index'
 import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServiceRequestFormIndexRoute = ServiceRequestFormIndexRouteImport.update({
+  id: '/service-request-form/',
+  path: '/service-request-form/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginIndexRoute = LoginIndexRouteImport.update({
@@ -36,12 +41,6 @@ const PublicSupportIndexRoute = PublicSupportIndexRouteImport.update({
   path: '/support/',
   getParentRoute: () => PublicRoute,
 } as any)
-const PublicServiceRequestFormIndexRoute =
-  PublicServiceRequestFormIndexRouteImport.update({
-    id: '/service-request-form/',
-    path: '/service-request-form/',
-    getParentRoute: () => PublicRoute,
-  } as any)
 const PublicFaqsIndexRoute = PublicFaqsIndexRouteImport.update({
   id: '/faqs/',
   path: '/faqs/',
@@ -56,17 +55,17 @@ const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/service-request-form/': typeof ServiceRequestFormIndexRoute
   '/blog/': typeof PublicBlogIndexRoute
   '/faqs/': typeof PublicFaqsIndexRoute
-  '/service-request-form/': typeof PublicServiceRequestFormIndexRoute
   '/support/': typeof PublicSupportIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/login': typeof LoginIndexRoute
+  '/service-request-form': typeof ServiceRequestFormIndexRoute
   '/blog': typeof PublicBlogIndexRoute
   '/faqs': typeof PublicFaqsIndexRoute
-  '/service-request-form': typeof PublicServiceRequestFormIndexRoute
   '/support': typeof PublicSupportIndexRoute
 }
 export interface FileRoutesById {
@@ -74,9 +73,9 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteWithChildren
   '/_public/': typeof PublicIndexRoute
   '/login/': typeof LoginIndexRoute
+  '/service-request-form/': typeof ServiceRequestFormIndexRoute
   '/_public/blog/': typeof PublicBlogIndexRoute
   '/_public/faqs/': typeof PublicFaqsIndexRoute
-  '/_public/service-request-form/': typeof PublicServiceRequestFormIndexRoute
   '/_public/support/': typeof PublicSupportIndexRoute
 }
 export interface FileRouteTypes {
@@ -84,26 +83,27 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login/'
+    | '/service-request-form/'
     | '/blog/'
     | '/faqs/'
-    | '/service-request-form/'
     | '/support/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/blog' | '/faqs' | '/service-request-form' | '/support'
+  to: '/' | '/login' | '/service-request-form' | '/blog' | '/faqs' | '/support'
   id:
     | '__root__'
     | '/_public'
     | '/_public/'
     | '/login/'
+    | '/service-request-form/'
     | '/_public/blog/'
     | '/_public/faqs/'
-    | '/_public/service-request-form/'
     | '/_public/support/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
   LoginIndexRoute: typeof LoginIndexRoute
+  ServiceRequestFormIndexRoute: typeof ServiceRequestFormIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -113,6 +113,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/service-request-form/': {
+      id: '/service-request-form/'
+      path: '/service-request-form'
+      fullPath: '/service-request-form/'
+      preLoaderRoute: typeof ServiceRequestFormIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login/': {
@@ -136,13 +143,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicSupportIndexRouteImport
       parentRoute: typeof PublicRoute
     }
-    '/_public/service-request-form/': {
-      id: '/_public/service-request-form/'
-      path: '/service-request-form'
-      fullPath: '/service-request-form/'
-      preLoaderRoute: typeof PublicServiceRequestFormIndexRouteImport
-      parentRoute: typeof PublicRoute
-    }
     '/_public/faqs/': {
       id: '/_public/faqs/'
       path: '/faqs'
@@ -164,7 +164,6 @@ interface PublicRouteChildren {
   PublicIndexRoute: typeof PublicIndexRoute
   PublicBlogIndexRoute: typeof PublicBlogIndexRoute
   PublicFaqsIndexRoute: typeof PublicFaqsIndexRoute
-  PublicServiceRequestFormIndexRoute: typeof PublicServiceRequestFormIndexRoute
   PublicSupportIndexRoute: typeof PublicSupportIndexRoute
 }
 
@@ -172,7 +171,6 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicIndexRoute: PublicIndexRoute,
   PublicBlogIndexRoute: PublicBlogIndexRoute,
   PublicFaqsIndexRoute: PublicFaqsIndexRoute,
-  PublicServiceRequestFormIndexRoute: PublicServiceRequestFormIndexRoute,
   PublicSupportIndexRoute: PublicSupportIndexRoute,
 }
 
@@ -182,6 +180,7 @@ const PublicRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
   LoginIndexRoute: LoginIndexRoute,
+  ServiceRequestFormIndexRoute: ServiceRequestFormIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

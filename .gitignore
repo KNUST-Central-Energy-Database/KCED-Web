@@ -2,12 +2,12 @@ node_modules
 dist
 dist-ssr
 *.local
+.tanstack/tmp
 
 # env
 .env
 .env.*
 !.env.example
-.tanstack/tmp
 
 # editor / os
 .DS_Store
