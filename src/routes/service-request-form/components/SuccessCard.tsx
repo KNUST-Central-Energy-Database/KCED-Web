@@ -2,7 +2,7 @@ import { CheckIcon } from "./icons";
 
 type Props = { onReset: () => void };
 
-export function SuccessCard({ onReset }: Props) {
+export function SuccessCard({ }: Props) {
   return (
     <div className="text-center space-y-4 animate-in fade-in zoom-in duration-300 py-6">
       <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-soft">

@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { db, TABLE, uploadImage } from "../../../lib/supabase";
-import { serviceRequestSchema, JURISDICTIONS, type ServiceRequestInsert } from "./schema";
+// import { db, TABLE, uploadImage } from "../../../lib/supabase";
+import { serviceRequestSchema, JURISDICTIONS } from "./schema";
+// import { serviceRequestSchema, JURISDICTIONS, type ServiceRequestInsert } from "./schema";
+
 import { ImageUploader } from "./ImageUploader";
 import { StepIndicator } from "./StepIndicator";
 import { SuccessCard } from "./SuccessCard";
@@ -50,7 +52,9 @@ export function RequestForm() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  const onSubmit = async (data: ServiceRequestForm) => {
+  // const onSubmit = async (data: ServiceRequestForm) => {
+  const onSubmit = async () => {
+
     setSubmitError(false);
     try {
       // const images = await Promise.all(files.map(uploadImage));
