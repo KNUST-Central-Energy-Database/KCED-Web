@@ -44,7 +44,7 @@ function ServiceRequestFormPage() {
 
         {/* Form Title */}
         <div className="flex flex-col gap-1">
-          <h1 className="font-display font-semibold text-2xl md:text-3xl tracking-tight">
+          <h1 className="font-semibold text-2xl tracking-tight">
             Service Request
           </h1>
           <p className="text-sm text-muted-foreground font-light">

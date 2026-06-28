@@ -24,7 +24,7 @@ export const serviceRequestSchema = z.object({
   issue: required(),
   description: required(),
   jurisdiction: z
-    .string()
+    .string({ error: 'Please select an area.' })
     .refine((v) => (JURISDICTIONS as readonly string[]).includes(v), {
       message: "Please select an area.",
     }),

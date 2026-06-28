@@ -10,16 +10,26 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as TrackServiceRequestIndexRouteImport } from './routes/track-service-request/index'
 import { Route as ServiceRequestFormIndexRouteImport } from './routes/service-request-form/index'
-import { Route as LoginIndexRouteImport } from './routes/login/index'
-import { Route as PublicIndexRouteImport } from './routes/_public/index'
-import { Route as PublicSupportIndexRouteImport } from './routes/_public/support/index'
-import { Route as PublicFaqsIndexRouteImport } from './routes/_public/faqs/index'
-import { Route as PublicBlogIndexRouteImport } from './routes/_public/blog/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as AuthLoginRouteImport } from './routes/_auth/login'
+import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
+import { Route as AuthAccountSetupRouteImport } from './routes/_auth/account-setup'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrackServiceRequestIndexRoute =
@@ -33,95 +43,98 @@ const ServiceRequestFormIndexRoute = ServiceRequestFormIndexRouteImport.update({
   path: '/service-request-form/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LoginIndexRoute = LoginIndexRouteImport.update({
-  id: '/login/',
-  path: '/login/',
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PublicIndexRoute = PublicIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => PublicRoute,
+const AuthLoginRoute = AuthLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthRoute,
 } as any)
-const PublicSupportIndexRoute = PublicSupportIndexRouteImport.update({
-  id: '/support/',
-  path: '/support/',
-  getParentRoute: () => PublicRoute,
+const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => AuthRoute,
 } as any)
-const PublicFaqsIndexRoute = PublicFaqsIndexRouteImport.update({
-  id: '/faqs/',
-  path: '/faqs/',
-  getParentRoute: () => PublicRoute,
-} as any)
-const PublicBlogIndexRoute = PublicBlogIndexRouteImport.update({
-  id: '/blog/',
-  path: '/blog/',
-  getParentRoute: () => PublicRoute,
+const AuthAccountSetupRoute = AuthAccountSetupRouteImport.update({
+  id: '/account-setup',
+  path: '/account-setup',
+  getParentRoute: () => AuthRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof PublicIndexRoute
-  '/login/': typeof LoginIndexRoute
+  '/$': typeof SplatRoute
+  '/': typeof PublicRoute
+  '/account-setup': typeof AuthAccountSetupRoute
+  '/forgot-password': typeof AuthForgotPasswordRoute
+  '/login': typeof AuthLoginRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/service-request-form/': typeof ServiceRequestFormIndexRoute
   '/track-service-request/': typeof TrackServiceRequestIndexRoute
-  '/blog/': typeof PublicBlogIndexRoute
-  '/faqs/': typeof PublicFaqsIndexRoute
-  '/support/': typeof PublicSupportIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof PublicIndexRoute
-  '/login': typeof LoginIndexRoute
+  '/$': typeof SplatRoute
+  '/': typeof PublicRoute
+  '/account-setup': typeof AuthAccountSetupRoute
+  '/forgot-password': typeof AuthForgotPasswordRoute
+  '/login': typeof AuthLoginRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/service-request-form': typeof ServiceRequestFormIndexRoute
   '/track-service-request': typeof TrackServiceRequestIndexRoute
-  '/blog': typeof PublicBlogIndexRoute
-  '/faqs': typeof PublicFaqsIndexRoute
-  '/support': typeof PublicSupportIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_public': typeof PublicRouteWithChildren
-  '/_public/': typeof PublicIndexRoute
-  '/login/': typeof LoginIndexRoute
+  '/$': typeof SplatRoute
+  '/_auth': typeof AuthRouteWithChildren
+  '/_public': typeof PublicRoute
+  '/_auth/account-setup': typeof AuthAccountSetupRoute
+  '/_auth/forgot-password': typeof AuthForgotPasswordRoute
+  '/_auth/login': typeof AuthLoginRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/service-request-form/': typeof ServiceRequestFormIndexRoute
   '/track-service-request/': typeof TrackServiceRequestIndexRoute
-  '/_public/blog/': typeof PublicBlogIndexRoute
-  '/_public/faqs/': typeof PublicFaqsIndexRoute
-  '/_public/support/': typeof PublicSupportIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/$'
     | '/'
-    | '/login/'
+    | '/account-setup'
+    | '/forgot-password'
+    | '/login'
+    | '/dashboard/'
     | '/service-request-form/'
     | '/track-service-request/'
-    | '/blog/'
-    | '/faqs/'
-    | '/support/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/$'
     | '/'
+    | '/account-setup'
+    | '/forgot-password'
     | '/login'
+    | '/dashboard'
     | '/service-request-form'
     | '/track-service-request'
-    | '/blog'
-    | '/faqs'
-    | '/support'
   id:
     | '__root__'
+    | '/$'
+    | '/_auth'
     | '/_public'
-    | '/_public/'
-    | '/login/'
+    | '/_auth/account-setup'
+    | '/_auth/forgot-password'
+    | '/_auth/login'
+    | '/dashboard/'
     | '/service-request-form/'
     | '/track-service-request/'
-    | '/_public/blog/'
-    | '/_public/faqs/'
-    | '/_public/support/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  PublicRoute: typeof PublicRouteWithChildren
-  LoginIndexRoute: typeof LoginIndexRoute
+  SplatRoute: typeof SplatRoute
+  AuthRoute: typeof AuthRouteWithChildren
+  PublicRoute: typeof PublicRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
   ServiceRequestFormIndexRoute: typeof ServiceRequestFormIndexRoute
   TrackServiceRequestIndexRoute: typeof TrackServiceRequestIndexRoute
 }
@@ -133,6 +146,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof PublicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/track-service-request/': {
@@ -149,64 +176,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServiceRequestFormIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/login/': {
-      id: '/login/'
-      path: '/login'
-      fullPath: '/login/'
-      preLoaderRoute: typeof LoginIndexRouteImport
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_public/': {
-      id: '/_public/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof PublicIndexRouteImport
-      parentRoute: typeof PublicRoute
+    '/_auth/login': {
+      id: '/_auth/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof AuthRoute
     }
-    '/_public/support/': {
-      id: '/_public/support/'
-      path: '/support'
-      fullPath: '/support/'
-      preLoaderRoute: typeof PublicSupportIndexRouteImport
-      parentRoute: typeof PublicRoute
+    '/_auth/forgot-password': {
+      id: '/_auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteImport
+      parentRoute: typeof AuthRoute
     }
-    '/_public/faqs/': {
-      id: '/_public/faqs/'
-      path: '/faqs'
-      fullPath: '/faqs/'
-      preLoaderRoute: typeof PublicFaqsIndexRouteImport
-      parentRoute: typeof PublicRoute
-    }
-    '/_public/blog/': {
-      id: '/_public/blog/'
-      path: '/blog'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof PublicBlogIndexRouteImport
-      parentRoute: typeof PublicRoute
+    '/_auth/account-setup': {
+      id: '/_auth/account-setup'
+      path: '/account-setup'
+      fullPath: '/account-setup'
+      preLoaderRoute: typeof AuthAccountSetupRouteImport
+      parentRoute: typeof AuthRoute
     }
   }
 }
 
-interface PublicRouteChildren {
-  PublicIndexRoute: typeof PublicIndexRoute
-  PublicBlogIndexRoute: typeof PublicBlogIndexRoute
-  PublicFaqsIndexRoute: typeof PublicFaqsIndexRoute
-  PublicSupportIndexRoute: typeof PublicSupportIndexRoute
+interface AuthRouteChildren {
+  AuthAccountSetupRoute: typeof AuthAccountSetupRoute
+  AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
+  AuthLoginRoute: typeof AuthLoginRoute
 }
 
-const PublicRouteChildren: PublicRouteChildren = {
-  PublicIndexRoute: PublicIndexRoute,
-  PublicBlogIndexRoute: PublicBlogIndexRoute,
-  PublicFaqsIndexRoute: PublicFaqsIndexRoute,
-  PublicSupportIndexRoute: PublicSupportIndexRoute,
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthAccountSetupRoute: AuthAccountSetupRoute,
+  AuthForgotPasswordRoute: AuthForgotPasswordRoute,
+  AuthLoginRoute: AuthLoginRoute,
 }
 
-const PublicRouteWithChildren =
-  PublicRoute._addFileChildren(PublicRouteChildren)
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  PublicRoute: PublicRouteWithChildren,
-  LoginIndexRoute: LoginIndexRoute,
+  SplatRoute: SplatRoute,
+  AuthRoute: AuthRouteWithChildren,
+  PublicRoute: PublicRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
   ServiceRequestFormIndexRoute: ServiceRequestFormIndexRoute,
   TrackServiceRequestIndexRoute: TrackServiceRequestIndexRoute,
 }

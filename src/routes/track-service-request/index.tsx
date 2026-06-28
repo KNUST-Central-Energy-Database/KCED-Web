@@ -81,7 +81,7 @@ function TrackServiceRequest() {
 
             <main className="max-w-xl mx-auto px-6 py-12 space-y-8">
                 <div className="flex flex-col gap-1">
-                    <h2 className="font-display text-2xl font-semibold tracking-tight">Track Request</h2>
+                    <h2 className="text-2xl font-semibold tracking-tight">Track Request</h2>
                     {ref ? (
                         <p className="text-sm text-muted-foreground">
                             Reference: <span className="font-medium text-ink">{ref}</span>

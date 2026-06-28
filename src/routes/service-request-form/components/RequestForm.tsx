@@ -9,13 +9,12 @@ import { serviceRequestSchema, JURISDICTIONS } from "./schema";
 import { ImageUploader } from "./ImageUploader";
 import { StepIndicator } from "./StepIndicator";
 import { SuccessCard } from "./SuccessCard";
-import { ArrowRightIcon, ArrowLeftIcon } from "./icons";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, Loader2 } from "lucide-react";
 
 type ServiceRequestForm = z.infer<typeof serviceRequestSchema>;
 

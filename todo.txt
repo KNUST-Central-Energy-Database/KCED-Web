@@ -1,0 +1,3 @@
+add check to block logigm if name is null
+
+remove is_verified
