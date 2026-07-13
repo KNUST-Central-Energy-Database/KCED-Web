@@ -54,7 +54,7 @@ function RouteComponent() {
       {/* Right — form, 3 cols */}
       <div className='col-span-7 md:col-span-3 flex flex-col items-center justify-center px-6 py-12'>
         <div className='w-full max-w-sm flex flex-col gap-10'>
-          <Link to="/" className="flex items-center space-x-3">
+          <Link to="/" className="inline-flex items-center space-x-3 self-start">
             <img
               src="/assets/images/knust-logo.png"
               alt="KNUST Crest"

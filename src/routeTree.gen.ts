@@ -12,9 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as SplatRouteImport } from './routes/$'
-import { Route as TrackServiceRequestIndexRouteImport } from './routes/track-service-request/index'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as ServiceRequestFormIndexRouteImport } from './routes/service-request-form/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardWorkOrdersRouteImport } from './routes/dashboard/work-orders'
+import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
+import { Route as DashboardServiceRequestsRouteImport } from './routes/dashboard/service-requests'
+import { Route as DashboardAssetsRouteImport } from './routes/dashboard/assets'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AuthAccountSetupRouteImport } from './routes/_auth/account-setup'
@@ -32,21 +36,41 @@ const SplatRoute = SplatRouteImport.update({
   path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TrackServiceRequestIndexRoute =
-  TrackServiceRequestIndexRouteImport.update({
-    id: '/track-service-request/',
-    path: '/track-service-request/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServiceRequestFormIndexRoute = ServiceRequestFormIndexRouteImport.update({
   id: '/service-request-form/',
   path: '/service-request-form/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/dashboard/',
-  path: '/dashboard/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardWorkOrdersRoute = DashboardWorkOrdersRouteImport.update({
+  id: '/work-orders',
+  path: '/work-orders',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardUsersRoute = DashboardUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardServiceRequestsRoute =
+  DashboardServiceRequestsRouteImport.update({
+    id: '/service-requests',
+    path: '/service-requests',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
+const DashboardAssetsRoute = DashboardAssetsRouteImport.update({
+  id: '/assets',
+  path: '/assets',
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/login',
@@ -65,14 +89,18 @@ const AuthAccountSetupRoute = AuthAccountSetupRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/$': typeof SplatRoute
   '/': typeof PublicRoute
   '/account-setup': typeof AuthAccountSetupRoute
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
+  '/dashboard/assets': typeof DashboardAssetsRoute
+  '/dashboard/service-requests': typeof DashboardServiceRequestsRoute
+  '/dashboard/users': typeof DashboardUsersRoute
+  '/dashboard/work-orders': typeof DashboardWorkOrdersRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/service-request-form/': typeof ServiceRequestFormIndexRoute
-  '/track-service-request/': typeof TrackServiceRequestIndexRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof SplatRoute
@@ -80,33 +108,44 @@ export interface FileRoutesByTo {
   '/account-setup': typeof AuthAccountSetupRoute
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
+  '/dashboard/assets': typeof DashboardAssetsRoute
+  '/dashboard/service-requests': typeof DashboardServiceRequestsRoute
+  '/dashboard/users': typeof DashboardUsersRoute
+  '/dashboard/work-orders': typeof DashboardWorkOrdersRoute
   '/dashboard': typeof DashboardIndexRoute
   '/service-request-form': typeof ServiceRequestFormIndexRoute
-  '/track-service-request': typeof TrackServiceRequestIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/$': typeof SplatRoute
   '/_auth': typeof AuthRouteWithChildren
   '/_public': typeof PublicRoute
   '/_auth/account-setup': typeof AuthAccountSetupRoute
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/login': typeof AuthLoginRoute
+  '/dashboard/assets': typeof DashboardAssetsRoute
+  '/dashboard/service-requests': typeof DashboardServiceRequestsRoute
+  '/dashboard/users': typeof DashboardUsersRoute
+  '/dashboard/work-orders': typeof DashboardWorkOrdersRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/service-request-form/': typeof ServiceRequestFormIndexRoute
-  '/track-service-request/': typeof TrackServiceRequestIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/dashboard'
     | '/$'
     | '/'
     | '/account-setup'
     | '/forgot-password'
     | '/login'
+    | '/dashboard/assets'
+    | '/dashboard/service-requests'
+    | '/dashboard/users'
+    | '/dashboard/work-orders'
     | '/dashboard/'
     | '/service-request-form/'
-    | '/track-service-request/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
@@ -114,29 +153,35 @@ export interface FileRouteTypes {
     | '/account-setup'
     | '/forgot-password'
     | '/login'
+    | '/dashboard/assets'
+    | '/dashboard/service-requests'
+    | '/dashboard/users'
+    | '/dashboard/work-orders'
     | '/dashboard'
     | '/service-request-form'
-    | '/track-service-request'
   id:
     | '__root__'
+    | '/dashboard'
     | '/$'
     | '/_auth'
     | '/_public'
     | '/_auth/account-setup'
     | '/_auth/forgot-password'
     | '/_auth/login'
+    | '/dashboard/assets'
+    | '/dashboard/service-requests'
+    | '/dashboard/users'
+    | '/dashboard/work-orders'
     | '/dashboard/'
     | '/service-request-form/'
-    | '/track-service-request/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   SplatRoute: typeof SplatRoute
   AuthRoute: typeof AuthRouteWithChildren
   PublicRoute: typeof PublicRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
   ServiceRequestFormIndexRoute: typeof ServiceRequestFormIndexRoute
-  TrackServiceRequestIndexRoute: typeof TrackServiceRequestIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -162,11 +207,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/track-service-request/': {
-      id: '/track-service-request/'
-      path: '/track-service-request'
-      fullPath: '/track-service-request/'
-      preLoaderRoute: typeof TrackServiceRequestIndexRouteImport
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/service-request-form/': {
@@ -178,10 +223,38 @@ declare module '@tanstack/react-router' {
     }
     '/dashboard/': {
       id: '/dashboard/'
-      path: '/dashboard'
+      path: '/'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/work-orders': {
+      id: '/dashboard/work-orders'
+      path: '/work-orders'
+      fullPath: '/dashboard/work-orders'
+      preLoaderRoute: typeof DashboardWorkOrdersRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/users': {
+      id: '/dashboard/users'
+      path: '/users'
+      fullPath: '/dashboard/users'
+      preLoaderRoute: typeof DashboardUsersRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/service-requests': {
+      id: '/dashboard/service-requests'
+      path: '/service-requests'
+      fullPath: '/dashboard/service-requests'
+      preLoaderRoute: typeof DashboardServiceRequestsRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/assets': {
+      id: '/dashboard/assets'
+      path: '/assets'
+      fullPath: '/dashboard/assets'
+      preLoaderRoute: typeof DashboardAssetsRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
     '/_auth/login': {
       id: '/_auth/login'
@@ -207,6 +280,26 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardRouteRouteChildren {
+  DashboardAssetsRoute: typeof DashboardAssetsRoute
+  DashboardServiceRequestsRoute: typeof DashboardServiceRequestsRoute
+  DashboardUsersRoute: typeof DashboardUsersRoute
+  DashboardWorkOrdersRoute: typeof DashboardWorkOrdersRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardAssetsRoute: DashboardAssetsRoute,
+  DashboardServiceRequestsRoute: DashboardServiceRequestsRoute,
+  DashboardUsersRoute: DashboardUsersRoute,
+  DashboardWorkOrdersRoute: DashboardWorkOrdersRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
 interface AuthRouteChildren {
   AuthAccountSetupRoute: typeof AuthAccountSetupRoute
   AuthForgotPasswordRoute: typeof AuthForgotPasswordRoute
@@ -222,12 +315,11 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   SplatRoute: SplatRoute,
   AuthRoute: AuthRouteWithChildren,
   PublicRoute: PublicRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
   ServiceRequestFormIndexRoute: ServiceRequestFormIndexRoute,
-  TrackServiceRequestIndexRoute: TrackServiceRequestIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

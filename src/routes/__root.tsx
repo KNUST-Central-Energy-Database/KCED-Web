@@ -1,4 +1,6 @@
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useRouter } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import { Toaster } from "@/components/ui/sonner"
 
 export const Route = createRootRoute({
@@ -6,6 +8,33 @@ export const Route = createRootRoute({
 })
 
 function RootComponent() {
+  const router = useRouter()
+
+  // Re-run route guards (beforeLoad) when the user actually signs in or out, so
+  // a protected page can't linger after sign-out. Mirrors the mobile router's
+  // refreshListenable.
+  //
+  // Supabase re-emits SIGNED_IN every time the tab regains focus, so we can't
+  // invalidate on the event alone — that would re-run guards (and their network
+  // calls) on every tab switch, flashing a reload. Instead we track the current
+  // user id and only invalidate when the identity genuinely changes.
+  useEffect(() => {
+    let currentUserId: string | null | undefined // undefined = not yet seen
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const nextUserId = session?.user?.id ?? null
+      if (currentUserId === undefined) {
+        currentUserId = nextUserId // seed on the first (INITIAL_SESSION) event
+        return
+      }
+      if (nextUserId !== currentUserId) {
+        currentUserId = nextUserId
+        router.invalidate()
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [router])
+
   return (
     <>
       <main>

@@ -148,3 +148,21 @@ body {
         @apply font-sans;
     }
 }
+
+/* Change the main progress bar color to match your branding */
+#nprogress .bar {
+    background: #1B6E44 !important;
+    height: 3px !important;
+
+    position: fixed !important;
+    z-index: 99999 !important;
+    /* Ensures it sits above your headers, bars, and sidebar layout */
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+}
+
+/* Change the glowing shadow trail effect to match your primary green */
+#nprogress .peg {
+    box-shadow: 0 0 10px #1B6E44, 0 0 5px #1B6E44 !important;
+}

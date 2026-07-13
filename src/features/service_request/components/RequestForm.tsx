@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-// import { db, TABLE, uploadImage } from "../../../lib/supabase";
-import { serviceRequestSchema, JURISDICTIONS } from "./schema";
-// import { serviceRequestSchema, JURISDICTIONS, type ServiceRequestInsert } from "./schema";
+import { toast } from "sonner";
+import {
+  serviceRequestSchema,
+  type Jurisdiction,
+  type ServiceRequestValues,
+} from "@/features/service_request/schema";
+import {
+  fetchJurisdictions,
+  submitServiceRequest,
+} from "@/features/service_request/services/service_request.service";
 
 import { ImageUploader } from "./ImageUploader";
 import { StepIndicator } from "./StepIndicator";
@@ -16,15 +22,21 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeftIcon, ArrowRightIcon, Loader2 } from "lucide-react";
 
-type ServiceRequestForm = z.infer<typeof serviceRequestSchema>;
-
-const STEP1_FIELDS: (keyof ServiceRequestForm)[] = ["issue", "description"];
+const STEP1_FIELDS: (keyof ServiceRequestValues)[] = ["issue", "description"];
 
 export function RequestForm() {
   const [step, setStep] = useState<1 | 2>(1);
   const [files, setFiles] = useState<File[]>([]);
+  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
   const [submitError, setSubmitError] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Load the areas for the picker from the `jurisdictions` table.
+  useEffect(() => {
+    fetchJurisdictions()
+      .then(setJurisdictions)
+      .catch(() => toast.error("Could not load areas. Please refresh the page."));
+  }, []);
 
   const {
     register,
@@ -34,7 +46,7 @@ export function RequestForm() {
     watch,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ServiceRequestForm>({
+  } = useForm<ServiceRequestValues>({
     resolver: zodResolver(serviceRequestSchema),
   });
 
@@ -51,16 +63,10 @@ export function RequestForm() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // const onSubmit = async (data: ServiceRequestForm) => {
-  const onSubmit = async () => {
-
+  const onSubmit = async (data: ServiceRequestValues) => {
     setSubmitError(false);
     try {
-      // const images = await Promise.all(files.map(uploadImage));
-      // const payload: ServiceRequestInsert = { ...data, images };
-      // const { error } = await db.from(TABLE).insert(payload);
-      // if (error) throw error;
-      await new Promise((r) => setTimeout(r, 2000)); // simulate network delay
+      await submitServiceRequest(data, files);
       setSubmitted(true);
     } catch (err) {
       console.error(err);
@@ -139,20 +145,20 @@ export function RequestForm() {
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="jurisdiction">Area / Jurisdiction</Label>
             <Select
-              onValueChange={(val) => setValue("jurisdiction", val, { shouldValidate: true })}
-              value={watch("jurisdiction")}
+              onValueChange={(val) => setValue("jurisdiction_id", Number(val), { shouldValidate: true })}
+              value={watch("jurisdiction_id") ? String(watch("jurisdiction_id")) : undefined}
             >
-              <SelectTrigger id="jurisdiction" aria-invalid={!!errors.jurisdiction}>
+              <SelectTrigger id="jurisdiction" aria-invalid={!!errors.jurisdiction_id}>
                 <SelectValue placeholder="Select an area..." />
               </SelectTrigger>
               <SelectContent>
-                {JURISDICTIONS.map((j) => (
-                  <SelectItem key={j} value={j}>{j}</SelectItem>
+                {jurisdictions.map((j) => (
+                  <SelectItem key={j.id} value={String(j.id)}>{j.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.jurisdiction && (
-              <p className="text-xs text-destructive">{errors.jurisdiction.message}</p>
+            {errors.jurisdiction_id && (
+              <p className="text-xs text-destructive">{errors.jurisdiction_id.message}</p>
             )}
           </div>
 
@@ -160,7 +166,7 @@ export function RequestForm() {
             <Label htmlFor="location">Location</Label>
             <Input
               id="location"
-              placeholder="Petroleum Building Room 101"
+              placeholder="eg. Petroleum Building, FF 8"
               {...register("location")}
               aria-invalid={!!errors.location}
             />
@@ -187,13 +193,13 @@ export function RequestForm() {
               <Label htmlFor="reporter_contact">Contact</Label>
               <Input
                 id="reporter_contact"
-                type="tel"
-                placeholder="0548666090"
-                {...register("reporter_contact")}
-                aria-invalid={!!errors.reporter_contact}
+                type="email"
+                placeholder="you@example.com"
+                {...register("reporter_email")}
+                aria-invalid={!!errors.reporter_email}
               />
-              {errors.reporter_contact && (
-                <p className="text-xs text-destructive">{errors.reporter_contact.message}</p>
+              {errors.reporter_email && (
+                <p className="text-xs text-destructive">{errors.reporter_email.message}</p>
               )}
             </div>
           </div>

@@ -1,29 +1,51 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
+import { useEffect } from "react";
+import Lenis from "lenis";
 
 export const Route = createFileRoute("/_public")({
   component: HomePage,
 });
 
 function HomePage() {
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.1,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
   return (
     <>
       <header className="flex md:grid grid-cols-1 md:grid-cols-3 transition-all duration-300 md:border-b border-primary">
-        <Link to="/" className="flex-1 flex items-center space-x-3 pt-4 md:pt-8 px-4 md:px-10 pb-8 md:pb-12 md:bg-primary-soft">
-          <img
-            src="/assets/images/knust-logo.png"
-            alt="KNUST Crest"
-            className="h-16 w-auto md:h-22"
-          />
-          <div className="pt-4 flex flex-col">
-            <h1 className="font-garamond font-semibold text-2xl md:text-3xl tracking-tight m-0 leading-tight">
-              KNUST
-            </h1>
-            <p className="not-md:text-xs font-medium m-0 -mt-0.5 leading-normal">
-              Central Energy Database
-            </p>
-          </div>
-        </Link>
+        <div className="pt-4 md:pt-8 px-4 md:px-10 pb-8 md:pb-10 md:bg-primary-soft">
+          <Link to="/" className="inline-flex items-center space-x-3">
+            <img
+              src="/assets/images/knust-logo.png"
+              alt="KNUST Crest"
+              className="h-16 w-auto md:h-22"
+            />
+            <div className="pt-4 flex flex-col">
+              <h1 className="font-garamond font-semibold text-2xl md:text-3xl tracking-tight m-0 leading-tight">
+                KNUST
+              </h1>
+              <p className="not-md:text-xs font-medium m-0 -mt-0.5 leading-normal">
+                Central Energy Database
+              </p>
+            </div>
+          </Link>
+        </div>
 
         <div className="flex items-center justify-end col-span-2 px-6 md:px-10">
           <Link
@@ -108,7 +130,7 @@ function HomePage() {
             </div>
 
             {/* Planned maintenance */}
-            <div className="w-full flex flex-col gap-4 not-md:px-4">
+            <div className="w-full flex flex-col gap-4 not-md:px-4 md:mb-16">
               <h2 className="font-sans text-3xl font-normal md:text-5xl tracking-tight">
                 Planned maintenance
               </h2>
@@ -116,25 +138,6 @@ function HomePage() {
                 Throughout the academic year, the KNUST Electrical Unit may carry out scheduled maintenance and upgrades to electrical fixtures, lighting systems, and building controls across campus. Work will be communicated to affected departments or halls in advance, and every effort will be made to minimise disruption to academic activities.
               </p>
             </div>
-
-            {/* Track your request */}
-            <div className="w-full flex flex-col gap-4 not-md:px-4">
-              <h2 className="font-sans text-3xl font-normal md:text-5xl tracking-tight">
-                Track your request
-              </h2>
-              <p className="leading-relaxed max-w-prose text-lg">
-                After submitting a request, you'll receive a confirmation with a reference number.
-                Use KCED to check the status of your work order at any time.
-              </p>
-
-              <Link
-                to="/track-service-request"
-                className="mt-2 inline-flex items-center gap-2 font-medium underline underline-offset-4 text-lg"
-              >
-                Track your request →
-              </Link>
-            </div>
-
           </div>
         </section >
 

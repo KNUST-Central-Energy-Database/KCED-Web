@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import { Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -28,7 +29,7 @@ export function ImageUploader({ files, onChange }: Props) {
 
   return (
     <div className="flex flex-col space-y-2">
-      <input
+      <Input
         ref={inputRef}
         type="file"
         id="images"
