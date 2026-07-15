@@ -87,10 +87,11 @@ export async function completeAccountSetup(params: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Session expired. Please use your invite link again.')
 
-  // full_name lives in auth metadata (set above); only phone needs saving here.
+  // full_name lives in auth metadata (set above); save the phone number and
+  // flip the profile to active now that setup is complete.
   const { error: profileError } = await supabase
     .from('users')
-    .update({ phone: params.phone })
+    .update({ phone: params.phone, status: 'active' })
     .eq('id', user.id)
   if (profileError) throw new Error(profileError.message)
 }

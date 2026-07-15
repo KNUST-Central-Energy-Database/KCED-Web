@@ -79,7 +79,7 @@ body {
     --chart-4: oklch(0.508 0.118 165.612);
     --chart-5: oklch(0.432 0.095 166.913);
     --radius: 0.625rem;
-    --sidebar: #ffffff;
+    --sidebar: #F9F9F9;
     --sidebar-foreground: #1A1A1A;
     --sidebar-primary: #1B6E44;
     --sidebar-primary-foreground: #DDF0E4;

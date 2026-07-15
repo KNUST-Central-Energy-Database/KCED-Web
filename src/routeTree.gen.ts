@@ -18,6 +18,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardWorkOrdersRouteImport } from './routes/dashboard/work-orders'
 import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
 import { Route as DashboardServiceRequestsRouteImport } from './routes/dashboard/service-requests'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
 import { Route as DashboardAssetsRouteImport } from './routes/dashboard/assets'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
@@ -67,6 +68,11 @@ const DashboardServiceRequestsRoute =
     path: '/service-requests',
     getParentRoute: () => DashboardRouteRoute,
   } as any)
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DashboardAssetsRoute = DashboardAssetsRouteImport.update({
   id: '/assets',
   path: '/assets',
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/dashboard/assets': typeof DashboardAssetsRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/service-requests': typeof DashboardServiceRequestsRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/work-orders': typeof DashboardWorkOrdersRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/dashboard/assets': typeof DashboardAssetsRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/service-requests': typeof DashboardServiceRequestsRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/work-orders': typeof DashboardWorkOrdersRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/login': typeof AuthLoginRoute
   '/dashboard/assets': typeof DashboardAssetsRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/service-requests': typeof DashboardServiceRequestsRoute
   '/dashboard/users': typeof DashboardUsersRoute
   '/dashboard/work-orders': typeof DashboardWorkOrdersRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/dashboard/assets'
+    | '/dashboard/profile'
     | '/dashboard/service-requests'
     | '/dashboard/users'
     | '/dashboard/work-orders'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/dashboard/assets'
+    | '/dashboard/profile'
     | '/dashboard/service-requests'
     | '/dashboard/users'
     | '/dashboard/work-orders'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/_auth/forgot-password'
     | '/_auth/login'
     | '/dashboard/assets'
+    | '/dashboard/profile'
     | '/dashboard/service-requests'
     | '/dashboard/users'
     | '/dashboard/work-orders'
@@ -249,6 +261,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardServiceRequestsRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/assets': {
       id: '/dashboard/assets'
       path: '/assets'
@@ -282,6 +301,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteRouteChildren {
   DashboardAssetsRoute: typeof DashboardAssetsRoute
+  DashboardProfileRoute: typeof DashboardProfileRoute
   DashboardServiceRequestsRoute: typeof DashboardServiceRequestsRoute
   DashboardUsersRoute: typeof DashboardUsersRoute
   DashboardWorkOrdersRoute: typeof DashboardWorkOrdersRoute
@@ -290,6 +310,7 @@ interface DashboardRouteRouteChildren {
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardAssetsRoute: DashboardAssetsRoute,
+  DashboardProfileRoute: DashboardProfileRoute,
   DashboardServiceRequestsRoute: DashboardServiceRequestsRoute,
   DashboardUsersRoute: DashboardUsersRoute,
   DashboardWorkOrdersRoute: DashboardWorkOrdersRoute,

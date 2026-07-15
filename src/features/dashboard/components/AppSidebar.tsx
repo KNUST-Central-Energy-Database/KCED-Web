@@ -1,5 +1,4 @@
-import { Link, useLocation, useNavigate } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { Link, useLocation } from '@tanstack/react-router'
 import {
   Home,
   LayoutDashboard,
@@ -8,12 +7,10 @@ import {
   Wrench,
   Boxes,
   Users,
-  LogOut,
 } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -23,7 +20,6 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { getSession, signOut } from '@/features/auth/services/auth.service'
 
 /** Primary dashboard navigation. `to` values must be real, existing routes. */
 const NAV_ITEMS = [
@@ -37,18 +33,7 @@ const NAV_ITEMS = [
 ] as const
 
 export function AppSidebar() {
-  const navigate = useNavigate()
   const { pathname } = useLocation()
-  const [email, setEmail] = useState<string>()
-
-  useEffect(() => {
-    getSession().then((session) => setEmail(session?.user?.email ?? undefined))
-  }, [])
-
-  const handleSignOut = async () => {
-    await signOut()
-    navigate({ to: '/login' })
-  }
 
   return (
     // collapsible="icon" keeps a slim rail (icons + crest) when collapsed;
@@ -95,24 +80,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className='gap-2'>
-        {email && (
-          <p
-            className='px-2 text-xs text-muted-foreground truncate group-data-[collapsible=icon]:hidden'
-            title={email}
-          >
-            {email}
-          </p>
-        )}
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleSignOut} tooltip='Sign out'>
-              <LogOut />
-              <span>Sign out</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+      {/* Account info + sign out moved to the top bar's UserMenu. */}
 
       <SidebarRail />
     </Sidebar>

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { AppSidebar } from '@/features/dashboard/components/AppSidebar'
+import { UserMenu } from '@/features/dashboard/components/UserMenu'
 
 /** Dashboard shell: the app sidebar plus a top bar with the collapse trigger. */
 export function DashboardLayout({ children }: { children: ReactNode }) {
@@ -16,6 +17,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             <SidebarTrigger className='-ml-1' />
             {/* <Separator orientation='vertical' className='mx-1 h-5' /> */}
             <h1 className='text-sm font-medium'>Dashboard</h1>
+            <UserMenu />
           </header>
           <div className='flex-1 p-6'>{children}</div>
         </SidebarInset>
