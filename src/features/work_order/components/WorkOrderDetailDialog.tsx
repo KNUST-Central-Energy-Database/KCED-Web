@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import {
   categoryLabel,
+  displayNumber,
   isOverdue,
-  shortId,
   type WorkOrder,
 } from "@/features/work_order/schema";
 import { WorkOrderStatusPill } from "@/features/work_order/components/WorkOrderStatusPill";
@@ -82,7 +82,7 @@ export function WorkOrderDetailDialog({
       <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
         <div className="flex items-start justify-between gap-2">
           <div className="flex flex-col gap-1">
-            <DialogTitle>Work Order - {shortId(order)}</DialogTitle>
+            <DialogTitle>Work Order - {displayNumber(order)}</DialogTitle>
             <DialogDescription>
               {order.createdAt
                 ? `Created ${formatDate(order.createdAt)}`

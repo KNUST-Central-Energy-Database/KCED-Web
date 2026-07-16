@@ -10,6 +10,17 @@ export interface Jurisdiction {
 const required = (message = "This field is required.") =>
   z.string().trim().min(1, message);
 
+/** The 9 digits after the fixed +233 prefix the form renders; normalized to
+ * the full +233… number for the insert. */
+const ghanaPhone = z
+  .string()
+  .trim()
+  .transform((v) => v.replace(/[\s\-()]/g, ""))
+  .refine((v) => /^\d{9}$/.test(v), {
+    message: "Enter the 9 digits after +233 (e.g. 241234567).",
+  })
+  .transform((v) => `+233${v}`);
+
 /** Single source of truth: validates the form AND infers its types. */
 export const serviceRequestSchema = z.object({
   issue: required(),
@@ -21,7 +32,7 @@ export const serviceRequestSchema = z.object({
     .positive("Please select an area."),
   location: required(),
   reporter: required(),
-  reporter_email: z.email('Enter a valid email'),
+  reporter_contact: ghanaPhone,
 });
 
 /** Form field values. */
@@ -33,14 +44,15 @@ export interface ServiceRequestInsert extends ServiceRequestValues {
 }
 
 /**
- * Service request statuses, in display order. Mirrors the kced_mobile
- * `ServiceRequestStatus` — rows without a `status` column value default to
- * `pending`.
+ * Service request statuses, in display order. Mirrors the
+ * `service_request_status` Postgres enum.
  */
 export const SERVICE_REQUEST_STATUSES = [
-  { dbValue: "pending", label: "Pending" },
-  { dbValue: "in_progress", label: "In Progress" },
+  { dbValue: "submitted", label: "Submitted" },
+  { dbValue: "assigned", label: "Assigned" },
+  { dbValue: "in progress", label: "In Progress" },
   { dbValue: "resolved", label: "Resolved" },
+  { dbValue: "cancelled", label: "Cancelled" },
 ] as const;
 
 export type ServiceRequestStatus = (typeof SERVICE_REQUEST_STATUSES)[number]["dbValue"];
@@ -54,7 +66,7 @@ export interface ServiceRequest {
   description: string;
   location: string;
   reporter: string;
-  reporterEmail: string;
+  reporterContact: string;
   submittedImages: string[];
   status: ServiceRequestStatus;
   createdAt: string | null;

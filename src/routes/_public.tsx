@@ -28,19 +28,19 @@ function HomePage() {
 
   return (
     <>
-      <header className="flex md:grid grid-cols-1 md:grid-cols-3 transition-all duration-300 md:border-b border-primary">
+      <header className="flex md:grid grid-cols-1 md:grid-cols-3 transition-all duration-300 md:border-b border-primary justify-between items-center">
         <div className="pt-4 md:pt-8 px-4 md:px-10 pb-8 md:pb-10 md:bg-primary-soft">
           <Link to="/" className="inline-flex items-center space-x-3">
             <img
               src="/assets/images/knust-logo.png"
               alt="KNUST Crest"
-              className="h-16 w-auto md:h-22"
+              className="h-14 w-auto md:h-22"
             />
             <div className="pt-4 flex flex-col">
-              <h1 className="font-garamond font-semibold text-2xl md:text-3xl tracking-tight m-0 leading-tight">
+              <h1 className="font-garamond font-semibold text-xl md:text-3xl tracking-tight m-0 leading-tight">
                 KNUST
               </h1>
-              <p className="not-md:text-xs font-medium m-0 -mt-0.5 leading-normal">
+              <p className="not-md:text-[0.6rem] font-medium m-0 -mt-0.5 leading-normal">
                 Central Energy Database
               </p>
             </div>
@@ -83,6 +83,15 @@ function HomePage() {
                   Submit a request {" "}
                   <Link
                     to="/service-request-form"
+                    className="font-medium underline"
+                  >
+                    here
+                  </Link>
+                </li>
+                <li>
+                  Track your request{" "}
+                  <Link
+                    to="/track-service-request"
                     className="font-medium underline"
                   >
                     here

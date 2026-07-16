@@ -22,6 +22,7 @@ function mapWorkOrder(row: Record<string, any>): WorkOrder {
   const jurisdiction = row.jurisdictions ?? null;
   return {
     id: row.id,
+    workOrderNumber: row.work_order_number?.toString() ?? null,
     title: row.title ?? "",
     description: row.description ?? "",
     category: row.category ?? "repair",

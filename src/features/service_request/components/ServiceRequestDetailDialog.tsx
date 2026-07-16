@@ -1,4 +1,4 @@
-import { Briefcase, Building2, Mail, MapPin, Trash2, User } from "lucide-react";
+import { Briefcase, Building2, MapPin, Phone, Trash2, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -104,8 +104,8 @@ export function ServiceRequestDetailDialog({
           <Section title="Reporter">
             <div className="flex flex-col gap-1.5">
               <IconLine icon={User} text={request.reporter || "Anonymous"} />
-              {request.reporterEmail && (
-                <IconLine icon={Mail} text={request.reporterEmail} />
+              {request.reporterContact && (
+                <IconLine icon={Phone} text={request.reporterContact} />
               )}
             </div>
           </Section>

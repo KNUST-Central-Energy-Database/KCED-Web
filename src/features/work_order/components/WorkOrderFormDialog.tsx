@@ -29,7 +29,7 @@ import {
 import { fetchJurisdictions } from "@/features/service_request/services/service_request.service";
 import {
   WORK_ORDER_CATEGORIES,
-  shortId,
+  displayNumber as workOrderNumber,
   workOrderSchema,
   type WorkOrder,
   type WorkOrderValues,
@@ -174,7 +174,7 @@ export function WorkOrderFormDialog({ order, request, open, onOpenChange, onSave
           <DialogTitle>{editing ? "Edit work order" : "Create work order"}</DialogTitle>
           <DialogDescription>
             {editing
-              ? `Work Order - ${shortId(order)}`
+              ? `Work Order - ${workOrderNumber(order)}`
               : request
                 ? `From request ${displayNumber(request)}.`
                 : "Schedule work for a technician crew."}

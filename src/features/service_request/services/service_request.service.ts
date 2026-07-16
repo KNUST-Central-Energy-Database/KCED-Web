@@ -3,6 +3,7 @@ import type {
   Jurisdiction,
   ServiceRequest,
   ServiceRequestInsert,
+  ServiceRequestStatus,
   ServiceRequestValues,
 } from "@/features/service_request/schema";
 
@@ -66,9 +67,9 @@ function mapServiceRequest(row: Record<string, any>): ServiceRequest {
     description: row.description ?? "",
     location: row.location ?? "",
     reporter: row.reporter ?? "",
-    reporterEmail: row.reporter_email ?? "",
+    reporterContact: row.reporter_contact ?? "",
     submittedImages: (row.submitted_images ?? []).map(String),
-    status: row.status ?? "pending",
+    status: row.status ?? "submitted",
     createdAt: row.created_at ?? null,
     updatedAt: row.updated_at ?? null,
     jurisdictionId: row.jurisdiction_id ?? null,
@@ -95,4 +96,32 @@ export async function fetchServiceRequests(): Promise<ServiceRequest[]> {
 export async function deleteServiceRequest(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq("id", id);
   if (error) throw new Error("Could not delete the request. Please try again.");
+}
+
+/** What the public tracking page shows about a request. */
+export interface TrackedRequest {
+  requestNumber: string;
+  status: ServiceRequestStatus;
+  createdAt: string | null;
+}
+
+/**
+ * Look up a request by its `request_number` for the public tracking page.
+ * Case-insensitive. Returns null when no request matches.
+ */
+export async function trackServiceRequest(
+  requestNumber: string,
+): Promise<TrackedRequest | null> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("request_number, status, created_at")
+    .ilike("request_number", requestNumber.trim())
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  return {
+    requestNumber: data.request_number?.toString() ?? requestNumber.trim(),
+    status: (data.status ?? "submitted") as ServiceRequestStatus,
+    createdAt: data.created_at ?? null,
+  };
 }

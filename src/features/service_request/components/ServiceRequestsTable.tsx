@@ -1,4 +1,4 @@
-import { Briefcase, Eye, MoreVertical, Trash2 } from "lucide-react";
+import { Briefcase, Eye, MapPin, MoreVertical, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -44,8 +44,9 @@ export function ServiceRequestsTable({
   onDelete,
 }: ServiceRequestsTableProps) {
   return (
-    <div className="overflow-x-auto rounded-[10px] border border-outline">
-      <table className="w-full text-sm">
+    <>
+      <div className="hidden overflow-x-auto rounded-[10px] border border-outline md:block">
+        <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-outline bg-[#F9F9F9] text-left text-xs text-muted-foreground">
             <th className="px-4 py-2.5 font-medium">Number</th>
@@ -113,6 +114,66 @@ export function ServiceRequestsTable({
           ))}
         </tbody>
       </table>
-    </div>
+      </div>
+
+      {/* Mobile: the kced_mobile card layout — white top (number, status
+          pill), grey bottom (issue, description, jurisdiction). */}
+      <div className="flex flex-col gap-2 md:hidden">
+        {requests.map((request) => (
+          <div
+            key={request.id}
+            className="cursor-pointer overflow-hidden rounded-[10px] border border-outline"
+            onClick={() => onView(request)}
+          >
+            <div className="flex flex-col gap-1 px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                <p className="min-w-0 flex-1 truncate text-sm tabular-nums">
+                  Request {displayNumber(request)}
+                </p>
+                <RequestStatusPill status={request.status} />
+                <div onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="size-7 -mr-1">
+                        <MoreVertical className="size-4 text-muted-foreground" />
+                        <span className="sr-only">Actions</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => onView(request)}>
+                        <Eye /> View details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => onCreateWorkOrder(request)}>
+                        <Briefcase /> Create work order
+                      </DropdownMenuItem>
+                      <DropdownMenuItem variant="destructive" onSelect={() => onDelete(request)}>
+                        <Trash2 /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {request.createdAt ? formatDate(request.createdAt) : "Date unknown"}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1 bg-[#F9F9F9] px-3 py-2.5">
+              <p className="truncate text-sm font-medium">
+                {request.issue || "Untitled request"}
+              </p>
+              {request.description && (
+                <p className="line-clamp-3 text-xs text-muted-foreground">
+                  {request.description}
+                </p>
+              )}
+              <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                <MapPin className="size-3" />
+                {request.jurisdictionCode ?? "Unassigned"}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }

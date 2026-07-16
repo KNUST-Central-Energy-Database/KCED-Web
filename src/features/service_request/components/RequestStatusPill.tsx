@@ -3,18 +3,20 @@ import {
   type ServiceRequestStatus,
 } from "@/features/service_request/schema";
 
-/** Pill colors per status, ported from the mobile `StatusPill`. */
+/** Pill colors per status, in the app's status-pill palette. */
 const STATUS_COLORS: Record<ServiceRequestStatus, { bg: string; fg: string }> = {
-  pending: { bg: "#FDECD2", fg: "#8A5A00" },
-  in_progress: { bg: "#D9E7FB", fg: "#1B4E8A" },
+  submitted: { bg: "#FDECD2", fg: "#8A5A00" },
+  assigned: { bg: "#EDE4FA", fg: "#54348A" },
+  "in progress": { bg: "#D9E7FB", fg: "#1B4E8A" },
   resolved: { bg: "#DDF0E4", fg: "#0F4429" },
+  cancelled: { bg: "#EDEDED", fg: "#6B6B6B" },
 };
 
 /** Small coloured pill for a service request status. */
 export function RequestStatusPill({ status }: { status: ServiceRequestStatus }) {
-  const { bg, fg } = STATUS_COLORS[status] ?? STATUS_COLORS.pending;
+  const { bg, fg } = STATUS_COLORS[status] ?? STATUS_COLORS.submitted;
   const label =
-    SERVICE_REQUEST_STATUSES.find((s) => s.dbValue === status)?.label ?? "Pending";
+    SERVICE_REQUEST_STATUSES.find((s) => s.dbValue === status)?.label ?? "Submitted";
   return (
     <span
       className="inline-block whitespace-nowrap rounded-[6px] px-2 py-0.5 text-[11px] font-medium"

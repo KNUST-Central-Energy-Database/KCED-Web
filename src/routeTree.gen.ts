@@ -13,6 +13,7 @@ import { Route as PublicRouteImport } from './routes/_public'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
+import { Route as TrackServiceRequestIndexRouteImport } from './routes/track-service-request/index'
 import { Route as ServiceRequestFormIndexRouteImport } from './routes/service-request-form/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DashboardWorkOrdersRouteImport } from './routes/dashboard/work-orders'
@@ -42,6 +43,12 @@ const DashboardRouteRoute = DashboardRouteRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TrackServiceRequestIndexRoute =
+  TrackServiceRequestIndexRouteImport.update({
+    id: '/track-service-request/',
+    path: '/track-service-request/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ServiceRequestFormIndexRoute = ServiceRequestFormIndexRouteImport.update({
   id: '/service-request-form/',
   path: '/service-request-form/',
@@ -108,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/work-orders': typeof DashboardWorkOrdersRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/service-request-form/': typeof ServiceRequestFormIndexRoute
+  '/track-service-request/': typeof TrackServiceRequestIndexRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof SplatRoute
@@ -122,6 +130,7 @@ export interface FileRoutesByTo {
   '/dashboard/work-orders': typeof DashboardWorkOrdersRoute
   '/dashboard': typeof DashboardIndexRoute
   '/service-request-form': typeof ServiceRequestFormIndexRoute
+  '/track-service-request': typeof TrackServiceRequestIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -139,6 +148,7 @@ export interface FileRoutesById {
   '/dashboard/work-orders': typeof DashboardWorkOrdersRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/service-request-form/': typeof ServiceRequestFormIndexRoute
+  '/track-service-request/': typeof TrackServiceRequestIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/dashboard/work-orders'
     | '/dashboard/'
     | '/service-request-form/'
+    | '/track-service-request/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/$'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | '/dashboard/work-orders'
     | '/dashboard'
     | '/service-request-form'
+    | '/track-service-request'
   id:
     | '__root__'
     | '/dashboard'
@@ -186,6 +198,7 @@ export interface FileRouteTypes {
     | '/dashboard/work-orders'
     | '/dashboard/'
     | '/service-request-form/'
+    | '/track-service-request/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -194,6 +207,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   PublicRoute: typeof PublicRoute
   ServiceRequestFormIndexRoute: typeof ServiceRequestFormIndexRoute
+  TrackServiceRequestIndexRoute: typeof TrackServiceRequestIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -224,6 +238,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/track-service-request/': {
+      id: '/track-service-request/'
+      path: '/track-service-request'
+      fullPath: '/track-service-request/'
+      preLoaderRoute: typeof TrackServiceRequestIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/service-request-form/': {
@@ -341,6 +362,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   PublicRoute: PublicRoute,
   ServiceRequestFormIndexRoute: ServiceRequestFormIndexRoute,
+  TrackServiceRequestIndexRoute: TrackServiceRequestIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

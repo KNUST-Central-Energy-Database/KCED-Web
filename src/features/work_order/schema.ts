@@ -20,6 +20,9 @@ export function categoryLabel(category: WorkOrderCategory): string {
 /** A row from the `work_orders` table (jurisdiction name/code joined in). */
 export interface WorkOrder {
   id: string;
+  /** Human-friendly work order number from the `work_order_number` column;
+   * null for rows created before the column existed. */
+  workOrderNumber: string | null;
   title: string;
   description: string;
   category: WorkOrderCategory;
@@ -52,6 +55,12 @@ export interface WorkOrder {
 /** Short, human-friendly id for list display, e.g. `#a1b2c3d4`. */
 export function shortId(order: WorkOrder): string {
   return `#${order.id.slice(0, 8)}`;
+}
+
+/** What to show as the order's number: the `work_order_number` when present,
+ * falling back to [shortId] for older rows. */
+export function displayNumber(order: WorkOrder): string {
+  return order.workOrderNumber ?? shortId(order);
 }
 
 /** Whether the deadline has passed without the work being completed. */

@@ -191,15 +191,34 @@ export function RequestForm() {
 
             <div className="flex flex-col gap-1.5 w-full">
               <Label htmlFor="reporter_contact">Contact</Label>
-              <Input
-                id="reporter_contact"
-                type="email"
-                placeholder="you@example.com"
-                {...register("reporter_email")}
-                aria-invalid={!!errors.reporter_email}
-              />
-              {errors.reporter_email && (
-                <p className="text-xs text-destructive">{errors.reporter_email.message}</p>
+              {/* Fixed +233 prefix; the field takes the 9 digits after it. */}
+              <div
+                className={`flex h-10 w-full items-center rounded-lg border bg-input/10 transition-colors focus-within:border-ring focus-within:ring-1 focus-within:ring-ring/50 ${
+                  errors.reporter_contact
+                    ? "border-destructive ring-1 ring-destructive/20"
+                    : "border-input"
+                }`}
+              >
+                <span className="select-none border-r border-input px-2.5 text-sm text-muted-foreground">
+                  +233
+                </span>
+                <input
+                  id="reporter_contact"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="241234567"
+                  className="h-full w-full min-w-0 bg-transparent px-2.5 text-sm outline-none placeholder:text-muted-foreground"
+                  {...register("reporter_contact", {
+                    // Digits only while typing, 9 max.
+                    onChange: (e) => {
+                      e.target.value = e.target.value.replace(/\D/g, "").slice(0, 9);
+                    },
+                  })}
+                  aria-invalid={!!errors.reporter_contact}
+                />
+              </div>
+              {errors.reporter_contact && (
+                <p className="text-xs text-destructive">{errors.reporter_contact.message}</p>
               )}
             </div>
           </div>
