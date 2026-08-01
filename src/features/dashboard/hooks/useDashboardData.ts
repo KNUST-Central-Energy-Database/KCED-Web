@@ -1,17 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   fetchDashboardCounts,
-  fetchJurisdictionShares,
-  fetchWeeklyRequestTrend,
   type DashboardCounts,
-  type JurisdictionShare,
-  type WeeklyTrendPoint,
 } from "@/features/dashboard/services/dashboard.service";
 
 export interface DashboardData {
   counts: DashboardCounts;
-  jurisdictionShares: JurisdictionShare[];
-  weeklyTrend: WeeklyTrendPoint[];
 }
 
 /**
@@ -28,12 +22,8 @@ export function useDashboardData() {
     setLoading(true);
     setError(null);
     try {
-      const [counts, jurisdictionShares, weeklyTrend] = await Promise.all([
-        fetchDashboardCounts(),
-        fetchJurisdictionShares(),
-        fetchWeeklyRequestTrend(),
-      ]);
-      setData({ counts, jurisdictionShares, weeklyTrend });
+      const counts = await fetchDashboardCounts();
+      setData({ counts });
     } catch (e) {
       console.error("Dashboard load failed:", e);
       setError("Could not load insights.");

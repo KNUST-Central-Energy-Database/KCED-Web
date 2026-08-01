@@ -1,17 +1,29 @@
-import { CalendarCheck, CheckCircle2, Clock, Timer, type LucideProps } from "lucide-react";
-import type { ComponentType } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import { Pie, PieChart, Cell } from "recharts";
 import {
   WORK_ORDER_STATUSES,
   type WorkOrderStatus,
 } from "@/features/dashboard/services/dashboard.service";
 
-const STATUS_ICONS: Record<WorkOrderStatus, ComponentType<LucideProps>> = {
-  pending: CalendarCheck,
-  "en route": Clock,
-  "in progress": Timer,
-  completed: CheckCircle2,
+const STATUS_COLORS: Record<WorkOrderStatus, string> = {
+  pending: "#F59E0B",
+  overdue: "#EF4444",
+  "in progress": "#3B82F6",
+  completed: "#10B981",
 };
+
+const chartConfig = Object.fromEntries(
+  WORK_ORDER_STATUSES.map(({ dbValue, label }) => [
+    dbValue,
+    { label, color: STATUS_COLORS[dbValue] },
+  ]),
+) satisfies ChartConfig;
 
 interface JobsStatusProps {
   workOrdersByStatus: Record<WorkOrderStatus, number> | null;
@@ -19,48 +31,64 @@ interface JobsStatusProps {
   loading?: boolean;
 }
 
-/**
- * Work order counts per status with each status's share of the total,
- * ported from the mobile "Jobs Status" tiles. Laid out as a grid on
- * desktop instead of the mobile vertical stack.
- */
 export function JobsStatus({ workOrdersByStatus, totalWorkOrders, loading }: JobsStatusProps) {
+  const chartData = WORK_ORDER_STATUSES.map(({ dbValue, label }) => ({
+    name: label,
+    value: workOrdersByStatus?.[dbValue] ?? 0,
+    fill: STATUS_COLORS[dbValue],
+  }));
+
   return (
     <section className="flex flex-col gap-3">
-      <h3 className="text-xl font-medium tracking-tight">Jobs Status</h3>
-      <div className="grid gap-1.5 sm:grid-cols-2">
-        {WORK_ORDER_STATUSES.map(({ dbValue, label }) => {
-          const Icon = STATUS_ICONS[dbValue];
-          const count = workOrdersByStatus?.[dbValue] ?? null;
-          const percent =
-            count !== null && totalWorkOrders
-              ? Math.round((count / totalWorkOrders) * 100)
-              : null;
+      <h3 className="font-semibold tracking-tight">Jobs Status</h3>
+      <div className="flex w-fit items-center gap-6 rounded-4xl border border-outline bg-[#F9F9F9] p-6">
+        <div className="h-[200px] w-[200px] shrink-0">
+          {loading ? (
+            <Skeleton className="h-full w-full rounded-full" />
+          ) : (
+            <ChartContainer config={chartConfig} className="h-full w-full">
+              <PieChart>
+                <ChartTooltip
+                  content={<ChartTooltipContent hideLabel />}
+                />
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  strokeWidth={2}
+                  stroke="#fff"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={index} fill={entry.fill} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
+          {WORK_ORDER_STATUSES.map(({ dbValue, label }) => {
+            const count = workOrdersByStatus?.[dbValue] ?? 0;
+            const percent = totalWorkOrders ? Math.round((count / totalWorkOrders) * 100) : 0;
 
-          return (
-            <div
-              key={dbValue}
-              className="flex items-center gap-2.5 rounded-[10px] bg-[#F9F9F9] p-3.5"
-            >
-              <Icon className="size-[18px] shrink-0 text-muted-foreground" />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{label}</p>
-                {loading ? (
-                  <Skeleton className="mt-1 h-4 w-14" />
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    {count === null ? "—" : `${count} ${count === 1 ? "job" : "jobs"}`}
-                  </p>
-                )}
-              </div>
-              {percent !== null && (
-                <span className="shrink-0 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-medium text-on-soft">
-                  {percent}%
+            return (
+              <div key={dbValue} className="flex items-center gap-2">
+                <div
+                  className="h-3 w-3 shrink-0 rounded-full"
+                  style={{ backgroundColor: STATUS_COLORS[dbValue] }}
+                />
+                <span className="text-sm text-muted-foreground">{label}</span>
+                <span className="ml-auto text-sm font-medium tabular-nums">
+                  {count} <span className="text-muted-foreground">({percent}%)</span>
                 </span>
-              )}
-            </div>
-          );
-        })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

@@ -59,20 +59,13 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="ml-auto rounded-full outline-none ring-primary/40 transition focus-visible:ring-2 data-open:ring-2"
+        className="ml-auto flex items-center rounded-full outline-none"
         aria-label="Account menu"
       >
-        <UserAvatar seed={profile.id ?? "anonymous"} avatarUrl={profile.avatarUrl} size={32} />
+        <UserAvatar seed={profile.id ?? "anonymous"} avatarUrl={profile.avatarUrl} size={36} />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel className="flex flex-col gap-0.5">
-          {profile.fullName && (
-            <span className="text-sm font-medium text-foreground">{profile.fullName}</span>
-          )}
-          <span className="truncate">{profile.email}</span>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => navigate({ to: "/dashboard/profile" })}>
           <UserRound />
           Profile

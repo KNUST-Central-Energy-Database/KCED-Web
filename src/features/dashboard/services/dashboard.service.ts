@@ -12,7 +12,7 @@ import { supabase } from "@/lib/supabase";
 /** Work order statuses, in display order. `dbValue` matches the DB rows. */
 export const WORK_ORDER_STATUSES = [
   { dbValue: "pending", label: "Pending" },
-  { dbValue: "en route", label: "En Route" },
+  { dbValue: "overdue", label: "Overdue" },
   { dbValue: "in progress", label: "In Progress" },
   { dbValue: "completed", label: "Completed" },
 ] as const;
@@ -36,9 +36,9 @@ export interface JurisdictionShare {
   percent: number;
 }
 
-/** One week's service request count for the current-month trend chart. */
-export interface WeeklyTrendPoint {
-  week: string;
+/** One day's service request count for the current-month trend chart. */
+export interface DailyTrendPoint {
+  day: string;
   count: number;
 }
 
@@ -103,25 +103,83 @@ export async function fetchJurisdictionShares(): Promise<JurisdictionShare[]> {
 }
 
 /**
- * Service requests submitted this month, bucketed into weeks 1–4
- * (days 1–7, 8–14, 15–21, 22+). Mobile shows sample data here; the web
- * computes it from `created_at`.
+ * Service requests for a given month, bucketed by day.
+ * Each entry has a formatted day label (e.g. "1 Jul") and the count.
  */
-export async function fetchWeeklyRequestTrend(): Promise<WeeklyTrendPoint[]> {
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+export async function fetchDailyRequestTrend(year: number, month: number): Promise<DailyTrendPoint[]> {
+  const monthStart = new Date(year, month, 1);
+  const monthEnd = new Date(year, month + 1, 0);
 
   const { data, error } = await supabase
     .from("service_requests")
     .select("created_at")
-    .gte("created_at", monthStart.toISOString());
+    .gte("created_at", monthStart.toISOString())
+    .lte("created_at", monthEnd.toISOString());
   if (error) throw error;
 
-  const buckets = [0, 0, 0, 0];
+  const daysInMonth = monthEnd.getDate();
+  const buckets = Array.from({ length: daysInMonth }, (_, i) => {
+    const d = new Date(year, month, i + 1);
+    const label = d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    return { day: label, count: 0 };
+  });
+
   for (const row of data ?? []) {
-    const day = new Date(row.created_at).getDate();
-    buckets[Math.min(Math.floor((day - 1) / 7), 3)]++;
+    const dayIndex = new Date(row.created_at).getDate() - 1;
+    if (dayIndex >= 0 && dayIndex < daysInMonth) {
+      buckets[dayIndex].count++;
+    }
   }
 
-  return buckets.map((count, i) => ({ week: `Week ${i + 1}`, count }));
+  return buckets;
+}
+
+export interface ActivityItem {
+  id: string;
+  type: "service_request" | "work_order";
+  title: string;
+  status: string;
+  createdAt: string;
+}
+
+/**
+ * Fetches the most recent service requests and work orders for the
+ * recent activity feed on the dashboard.
+ */
+export async function fetchRecentActivity(limit = 5): Promise<ActivityItem[]> {
+  const [requestsRes, ordersRes] = await Promise.all([
+    supabase
+      .from("service_requests")
+      .select("id, title, status, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit),
+    supabase
+      .from("work_orders")
+      .select("id, title, status, created_at")
+      .order("created_at", { ascending: false })
+      .limit(limit),
+  ]);
+
+  if (requestsRes.error) throw requestsRes.error;
+  if (ordersRes.error) throw ordersRes.error;
+
+  const items: ActivityItem[] = [
+    ...(requestsRes.data ?? []).map((r) => ({
+      id: r.id,
+      type: "service_request" as const,
+      title: r.title,
+      status: r.status,
+      createdAt: r.created_at,
+    })),
+    ...(ordersRes.data ?? []).map((o) => ({
+      id: o.id,
+      type: "work_order" as const,
+      title: o.title,
+      status: o.status,
+      createdAt: o.created_at,
+    })),
+  ];
+
+  items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  return items.slice(0, limit);
 }

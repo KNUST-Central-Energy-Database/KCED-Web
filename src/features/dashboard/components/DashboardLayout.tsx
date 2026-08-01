@@ -1,27 +1,36 @@
 import type { ReactNode } from 'react'
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { TooltipProvider } from '@/components/ui/tooltip'
 import { AppSidebar } from '@/features/dashboard/components/AppSidebar'
 import { UserMenu } from '@/features/dashboard/components/UserMenu'
+import { Link } from '@tanstack/react-router'
 
-/** Dashboard shell: the app sidebar plus a top bar with the collapse trigger. */
+/** Dashboard shell: a full-width header, with the nav sidebar and content below it. */
 export function DashboardLayout({ children }: { children: ReactNode }) {
   return (
-    // The sidebar menu buttons render tooltips (shown when collapsed to icons),
-    // which need a TooltipProvider — this project's SidebarProvider omits one.
-    <TooltipProvider>
-      <SidebarProvider>
+    <div className='relative h-svh overflow-hidden'>
+      <header className='fixed inset-x-0 top-0 flex h-24 items-center justify-between border-b border-outline bg-background/5 backdrop-blur-md'>
+        <Link to='/dashboard' className='flex items-center gap-0.5 px-4 md:px-6'>
+          <img
+            src='/assets/images/knust-logo.png'
+            alt='KNUST Crest'
+            className='size-14 shrink-0 object-contain'
+          />
+          <div className='flex flex-col leading-2 pt-2'>
+            <span className='font-garamond font-semibold text-lg tracking-tight'>KNUST</span>
+            <span className='text-[0.65rem] font-medium text-muted-foreground'>
+              Central Energy Database
+            </span>
+          </div>
+        </Link>
+
+        <div className='px-4 md:px-6'>
+          <UserMenu />
+        </div>
+      </header>
+
+      <div className='flex h-full pt-24'>
         <AppSidebar />
-        <SidebarInset>
-          <header className='flex h-14 shrink-0 items-center gap-2 border-b border-outline px-4'>
-            <SidebarTrigger className='-ml-1' />
-            {/* <Separator orientation='vertical' className='mx-1 h-5' /> */}
-            <h1 className='text-sm font-medium'>Dashboard</h1>
-            <UserMenu />
-          </header>
-          <div className='flex-1 p-6'>{children}</div>
-        </SidebarInset>
-      </SidebarProvider>
-    </TooltipProvider>
+        <main className='flex-1 overflow-y-auto p-6'>{children}</main>
+      </div>
+    </div>
   )
 }

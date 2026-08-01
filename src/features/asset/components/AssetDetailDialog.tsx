@@ -1,11 +1,12 @@
-import { Building2, MapPin } from "lucide-react";
-import type { ReactNode } from "react";
+import { Building2, ImageOff, MapPin } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ASSET_SPEC_FIELDS, type SpecField } from "@/features/asset/asset-specs-config";
 import {
   assetTypeLabel,
@@ -157,25 +158,65 @@ export function AssetDetailDialog({ asset, open, onOpenChange }: AssetDetailDial
             </Section>
           )}
 
-          {asset.nameplatePhotoUrl && (
-            <Section title="Nameplate">
-              <a
-                href={asset.nameplatePhotoUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="w-fit"
-              >
-                <img
-                  src={asset.nameplatePhotoUrl}
-                  alt="Nameplate photo"
-                  className="max-h-40 rounded-[10px] border border-outline object-cover"
-                  loading="lazy"
-                />
-              </a>
-            </Section>
-          )}
+          <Section title="Nameplate">
+            <NameplatePhoto url={asset.nameplatePhotoUrl} />
+          </Section>
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** The nameplate photo with explicit empty / loading / error states. */
+function NameplatePhoto({ url }: { url: string | null }) {
+  const [state, setState] = useState<"loading" | "loaded" | "error">("loading");
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Restart the load cycle when the dialog shows a different asset. A cached
+  // image can finish before React attaches onLoad — `complete` catches that.
+  useEffect(() => {
+    if (imgRef.current?.complete) {
+      setState(imgRef.current.naturalWidth > 0 ? "loaded" : "error");
+    } else {
+      setState("loading");
+    }
+  }, [url]);
+
+  if (!url) {
+    return (
+      <div className="flex h-24 w-40 flex-col items-center justify-center gap-1 rounded-[10px] border border-dashed border-outline bg-muted/50">
+        <ImageOff className="size-4 text-muted-foreground" />
+        <p className="text-xs text-muted-foreground">No nameplate photo</p>
+      </div>
+    );
+  }
+
+  if (state === "error") {
+    return (
+      <div className="flex h-24 w-40 flex-col items-center justify-center gap-1 rounded-[10px] border border-outline bg-muted/50">
+        <ImageOff className="size-4 text-muted-foreground" />
+        <p className="text-xs text-muted-foreground">Photo failed to load</p>
+      </div>
+    );
+  }
+
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="relative w-fit">
+      {/* Absolute overlay while loading; the img keeps its layout box (just
+          invisible) — display:none would stop the browser loading it at all. */}
+      {state === "loading" && (
+        <Skeleton className="absolute inset-0 rounded-[10px]" />
+      )}
+      <img
+        ref={imgRef}
+        src={url}
+        alt="Nameplate photo"
+        className={`max-h-40 min-h-24 min-w-40 rounded-[10px] border border-outline object-cover ${
+          state === "loading" ? "opacity-0" : ""
+        }`}
+        onLoad={() => setState("loaded")}
+        onError={() => setState("error")}
+      />
+    </a>
   );
 }

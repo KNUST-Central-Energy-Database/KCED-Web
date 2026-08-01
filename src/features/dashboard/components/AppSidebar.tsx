@@ -1,88 +1,99 @@
-import { Link, useLocation } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from '@tanstack/react-router'
+import { LogOut, UserRound, ChevronUp } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import {
-  Home,
-  LayoutDashboard,
-  FilePlus2,
-  ClipboardList,
-  Wrench,
-  Boxes,
-  Users,
-} from 'lucide-react'
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { UserAvatar } from '@/components/UserAvatar'
+import { signOut } from '@/features/auth/services/auth.service'
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-} from '@/components/ui/sidebar'
+  fetchProfile,
+  ROLE_LABELS,
+  type Profile,
+} from '@/features/profile/services/profile.service'
 
 /** Primary dashboard navigation. `to` values must be real, existing routes. */
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/dashboard/service-requests', label: 'Service Requests', icon: ClipboardList },
-  { to: '/dashboard/work-orders', label: 'Work Orders', icon: Wrench },
-  { to: '/dashboard/assets', label: 'Assets', icon: Boxes },
-  { to: '/dashboard/users', label: 'Users', icon: Users },
-  { to: '/service-request-form', label: 'New Request', icon: FilePlus2 },
-  { to: '/', label: 'Public Site', icon: Home },
+  { to: '/dashboard', label: 'Dashboard', img: '/assets/images/dashboard/dashboard.webp' },
+  { to: '/dashboard/service-requests', label: 'Service Requests', img: '/assets/images/dashboard/service-requests.webp' },
+  { to: '/dashboard/work-orders', label: 'Work Orders', img: '/assets/images/dashboard/work-orders.webp' },
+  { to: '/dashboard/assets', label: 'Assets', img: '/assets/images/dashboard/assets.webp' },
+  { to: '/dashboard/users', label: 'Users', img: '/assets/images/dashboard/users.webp' },
+  { to: '/dashboard/map', label: 'Map', img: '/assets/images/dashboard/map.webp' },
 ] as const
 
 export function AppSidebar() {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const [profile, setProfile] = useState<Profile | null>(null)
+
+  useEffect(() => {
+    fetchProfile()
+      .then(setProfile)
+      .catch(() => setProfile(null))
+  }, [])
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate({ to: '/login' })
+  }
 
   return (
-    // collapsible="icon" keeps a slim rail (icons + crest) when collapsed;
-    // the default "offcanvas" would slide the whole sidebar off-screen.
-    <Sidebar collapsible='icon'>
-      <SidebarHeader className='p-4 group-data-[collapsible=icon]:p-2'>
-        <Link
-          to='/dashboard'
-          className='flex items-center gap-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0'
-        >
-          <img
-            src='/assets/images/knust-logo.png'
-            alt='KNUST Crest'
-            className='size-10 shrink-0 object-contain'
-          />
-          <div className='flex flex-col leading-tight transition-all duration-300 ease-in-out origin-left overflow-hidden group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none max-w-[200px] opacity-100'>
-            <span className='font-garamond font-semibold text-lg tracking-tight whitespace-nowrap'>
-              KNUST
+    <nav className='flex w-1/5 shrink-0 flex-col gap-1 overflow-hidden border-r border-outline'>
+      <div className='flex flex-col gap-1 p-4'>
+        {NAV_ITEMS.map((item) => (
+          <Link
+            key={item.to}
+            to={item.to}
+            className={cn(
+              'flex items-center gap-2.5 rounded-4xl px-3 py-2 font-medium transition-colors',
+              pathname === item.to
+                ? 'bg-primary-soft text-on-soft'
+                : 'text-muted-foreground hover:bg-muted'
+            )}
+          >
+            <img src={item.img} alt='' className='size-6 shrink-0' />
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </div>
+
+      <div className='mt-auto p-4 border-t'>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            className='flex w-full items-center gap-3 rounded-4xl p-2 text-left outline-none transition-colors hover:bg-muted'
+            aria-label='Account menu'
+          >
+            <UserAvatar seed={profile?.id ?? 'anonymous'} avatarUrl={profile?.avatarUrl} size={36} />
+            <span className='flex min-w-0 flex-col leading-tight'>
+              <span className='truncate text-base font-semibold text-foreground'>
+                {profile?.fullName || 'User'}
+              </span>
+              <span className='truncate text-xs text-muted-foreground'>
+                {profile ? ROLE_LABELS[profile.role] : '—'}
+              </span>
             </span>
-            <span className='text-[0.65rem] font-medium text-muted-foreground whitespace-nowrap'>
-              Central Energy Database
-            </span>
-          </div>
-        </Link>
-      </SidebarHeader>
+            <ChevronUp className='size-4 shrink-0 ml-auto mr-4' />
+          </DropdownMenuTrigger>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {NAV_ITEMS.map((item) => (
-                <SidebarMenuItem key={item.to}>
-                  <SidebarMenuButton asChild isActive={pathname === item.to} tooltip={item.label}>
-                    <Link to={item.to}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      {/* Account info + sign out moved to the top bar's UserMenu. */}
-
-      <SidebarRail />
-    </Sidebar>
+          <DropdownMenuContent align='end' side='top'>
+            <DropdownMenuItem onSelect={() => navigate({ to: '/dashboard/profile' })}>
+              <UserRound />
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem variant='destructive' onSelect={handleSignOut}>
+              <LogOut />
+              Log out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </nav>
   )
 }

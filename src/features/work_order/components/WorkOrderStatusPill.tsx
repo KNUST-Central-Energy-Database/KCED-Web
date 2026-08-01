@@ -4,7 +4,7 @@ import { WORK_ORDER_STATUSES } from "@/features/dashboard/services/dashboard.ser
 /** Pill colors per status, ported from the mobile `WorkOrderStatusPill`. */
 const STATUS_COLORS: Record<WorkOrderStatus, { bg: string; fg: string }> = {
   pending: { bg: "#FDECD2", fg: "#8A5A00" },
-  "en route": { bg: "#EDE4FA", fg: "#54348A" },
+  overdue: { bg: "#FBEAE9", fg: "#B3261E" },
   "in progress": { bg: "#D9E7FB", fg: "#1B4E8A" },
   completed: { bg: "#DDF0E4", fg: "#0F4429" },
 };

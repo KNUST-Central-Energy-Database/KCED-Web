@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Boxes, ClipboardList, Users, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/features/auth/services/auth.service";
 import { InsightCard } from "@/features/dashboard/components/InsightCard";
 import { JobsStatus } from "@/features/dashboard/components/JobsStatus";
-import { JurisdictionShares } from "@/features/dashboard/components/JurisdictionShares";
+import { RecentActivity } from "@/features/dashboard/components/RecentActivity";
+import { QuickActionCard } from "@/features/dashboard/components/QuickActionCard";
+import { ClipboardList, Boxes, UserPlus, Briefcase } from "lucide-react";
 import { RequestsTrendChart } from "@/features/dashboard/components/RequestsTrendChart";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
+import { useMonthlyTrend } from "@/features/dashboard/hooks/useMonthlyTrend";
 
 // The `/dashboard` layout route (route.tsx) supplies the sidebar shell and the
 // requireAuth guard; this is the dashboard home, ported from the kced_mobile
@@ -27,6 +29,7 @@ function greeting(): string {
 
 function DashboardIndex() {
   const { data, loading, error, reload } = useDashboardData();
+  const { data: trendData, loading: trendLoading, selected, selectMonth, monthOptions } = useMonthlyTrend();
   const [firstName, setFirstName] = useState<string>();
 
   useEffect(() => {
@@ -36,23 +39,19 @@ function DashboardIndex() {
     });
   }, []);
 
-  const today = new Date().toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "short",
-  });
-
   const counts = data?.counts ?? null;
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+    <div className="flex w-full flex-col gap-8">
       {/* Greeting */}
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col">
         <h2 className="text-2xl font-semibold tracking-tight">
           {greeting()}
           {firstName ? `, ${firstName}` : ""}
         </h2>
-        <p className="text-sm text-muted-foreground">{today}</p>
+        <p className="text-muted-foreground">
+          Here's what's happening across KNUST's electrical assets and service requests.
+        </p>
       </div>
 
       {error && (
@@ -67,34 +66,33 @@ function DashboardIndex() {
       {/* Overview */}
       <section className="flex flex-col gap-3">
         <div>
-          <h3 className="text-xl font-medium tracking-tight">Overview</h3>
-          <p className="text-sm text-muted-foreground">View your dashboard insights</p>
+          <h3 className="font-semibold tracking-tight">Overview</h3>
         </div>
         <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
           <InsightCard
             title="Total Users"
-            icon={Users}
+            img="/assets/images/dashboard/users.webp"
             count={counts?.userCount ?? null}
             loading={loading}
             to="/dashboard/users"
           />
           <InsightCard
             title="Total Work Orders"
-            icon={Wrench}
+            img="/assets/images/dashboard/work-orders.webp"
             count={counts?.workOrderCount ?? null}
             loading={loading}
             to="/dashboard/work-orders"
           />
           <InsightCard
             title="Total Requests"
-            icon={ClipboardList}
+            img="/assets/images/dashboard/service-requests.webp"
             count={counts?.requestCount ?? null}
             loading={loading}
             to="/dashboard/service-requests"
           />
           <InsightCard
             title="Total Assets"
-            icon={Boxes}
+            img="/assets/images/dashboard/assets.webp"
             count={counts?.assetCount ?? null}
             loading={loading}
             to="/dashboard/assets"
@@ -102,17 +100,55 @@ function DashboardIndex() {
         </div>
       </section>
 
-      {/* Trend + jobs status side by side on wide screens */}
-      <div className="grid gap-8 lg:grid-cols-2">
-        <RequestsTrendChart data={data?.weeklyTrend ?? []} loading={loading} />
+      {/* Quick Actions */}
+      <section className="flex flex-col gap-3">
+        <div>
+          <h3 className="font-semibold tracking-tight">Quick Actions</h3>
+        </div>
+        <div className="grid gap-2.5 sm:grid-cols-3">
+          <QuickActionCard
+            title="Create Work Order"
+            subtext="Submit and track new work orders"
+            icon={Briefcase}
+            to="/dashboard/work-orders"
+            color="#6EE7B7"
+            titleColor="#059669"
+          />
+          <QuickActionCard
+            title="New Asset"
+            subtext="Register and catalog new equipment"
+            icon={Boxes}
+            to="/dashboard/assets"
+            color="#FCD34D"
+            titleColor="#D97706"
+          />
+          <QuickActionCard
+            title="Add Someone"
+            subtext="Onboard new team members to the system"
+            icon={UserPlus}
+            to="/dashboard/users"
+            color="#C4B5FD"
+            titleColor="#7C3AED"
+          />
+        </div>
+      </section>
+
+      <RequestsTrendChart
+        data={trendData}
+        loading={trendLoading}
+        selectedMonth={selected}
+        monthOptions={monthOptions}
+        onMonthChange={selectMonth}
+      />
+
+      <div className="grid gap-8 lg:grid-cols-[auto_1fr]">
         <JobsStatus
           workOrdersByStatus={counts?.workOrdersByStatus ?? null}
           totalWorkOrders={counts?.workOrderCount ?? null}
           loading={loading}
         />
+        <RecentActivity loading={loading} />
       </div>
-
-      <JurisdictionShares shares={data?.jurisdictionShares ?? null} loading={loading} />
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { Route as DashboardWorkOrdersRouteImport } from './routes/dashboard/work
 import { Route as DashboardUsersRouteImport } from './routes/dashboard/users'
 import { Route as DashboardServiceRequestsRouteImport } from './routes/dashboard/service-requests'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
+import { Route as DashboardMapRouteImport } from './routes/dashboard/map'
 import { Route as DashboardAssetsRouteImport } from './routes/dashboard/assets'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
@@ -80,6 +81,11 @@ const DashboardProfileRoute = DashboardProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardMapRoute = DashboardMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const DashboardAssetsRoute = DashboardAssetsRouteImport.update({
   id: '/assets',
   path: '/assets',
@@ -109,6 +115,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/dashboard/assets': typeof DashboardAssetsRoute
+  '/dashboard/map': typeof DashboardMapRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/service-requests': typeof DashboardServiceRequestsRoute
   '/dashboard/users': typeof DashboardUsersRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
   '/dashboard/assets': typeof DashboardAssetsRoute
+  '/dashboard/map': typeof DashboardMapRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/service-requests': typeof DashboardServiceRequestsRoute
   '/dashboard/users': typeof DashboardUsersRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/login': typeof AuthLoginRoute
   '/dashboard/assets': typeof DashboardAssetsRoute
+  '/dashboard/map': typeof DashboardMapRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/service-requests': typeof DashboardServiceRequestsRoute
   '/dashboard/users': typeof DashboardUsersRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/dashboard/assets'
+    | '/dashboard/map'
     | '/dashboard/profile'
     | '/dashboard/service-requests'
     | '/dashboard/users'
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/dashboard/assets'
+    | '/dashboard/map'
     | '/dashboard/profile'
     | '/dashboard/service-requests'
     | '/dashboard/users'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/_auth/forgot-password'
     | '/_auth/login'
     | '/dashboard/assets'
+    | '/dashboard/map'
     | '/dashboard/profile'
     | '/dashboard/service-requests'
     | '/dashboard/users'
@@ -289,6 +301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProfileRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/map': {
+      id: '/dashboard/map'
+      path: '/map'
+      fullPath: '/dashboard/map'
+      preLoaderRoute: typeof DashboardMapRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/assets': {
       id: '/dashboard/assets'
       path: '/assets'
@@ -322,6 +341,7 @@ declare module '@tanstack/react-router' {
 
 interface DashboardRouteRouteChildren {
   DashboardAssetsRoute: typeof DashboardAssetsRoute
+  DashboardMapRoute: typeof DashboardMapRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
   DashboardServiceRequestsRoute: typeof DashboardServiceRequestsRoute
   DashboardUsersRoute: typeof DashboardUsersRoute
@@ -331,6 +351,7 @@ interface DashboardRouteRouteChildren {
 
 const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardAssetsRoute: DashboardAssetsRoute,
+  DashboardMapRoute: DashboardMapRoute,
   DashboardProfileRoute: DashboardProfileRoute,
   DashboardServiceRequestsRoute: DashboardServiceRequestsRoute,
   DashboardUsersRoute: DashboardUsersRoute,

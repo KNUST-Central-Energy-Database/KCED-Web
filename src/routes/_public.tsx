@@ -50,10 +50,11 @@ function HomePage() {
         <div className="flex items-center justify-end col-span-2 px-6 md:px-10">
           <Link
             to="/login"
-            className={`px-4 md:px-6 py-2 rounded-4xl font-display text-sm md:text-lg font-medium transition-colors hover:text-white flex gap-1 items-center hover:bg-primary border border-black hover:border-primary`}
+            target="_blank"
+            className={`px-4 md:px-6 py-2 rounded-4xl font-display text-sm md:text-base font-medium transition-colors hover:text-white flex gap-1 items-center hover:bg-primary border border-black hover:border-primary`}
           >
-            Log in
-            <LogIn className="w-4.5 h-4.5" strokeWidth={1.8} />
+            Staff Login
+            <LogIn className="w-4 h-4" strokeWidth={1.8} />
           </Link>
         </div>
       </header>
