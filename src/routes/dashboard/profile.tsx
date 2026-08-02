@@ -69,10 +69,16 @@ function ProfilePage() {
 
   if (loading || !profile) {
     return (
-      <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 pt-8">
-        <Skeleton className="size-[100px] rounded-full" />
-        <Skeleton className="h-6 w-40" />
+      <div className="mx-auto flex w-full max-w-md flex-col gap-4 pt-8">
+        <Skeleton className="h-8 w-32" />
         <Skeleton className="h-4 w-56" />
+        <div className="flex items-center gap-4">
+          <Skeleton className="size-[80px] rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        </div>
         <Skeleton className="mt-4 h-64 w-full" />
       </div>
     );
@@ -80,22 +86,30 @@ function ProfilePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-8">
+      {/* Header */}
+      <div className="flex flex-col">
+        <h2 className="text-2xl font-semibold tracking-tight">Profile</h2>
+        <p className="text-muted-foreground">View and manage your account details.</p>
+      </div>
+
       {/* Identity card */}
-      <section className="flex flex-col items-center gap-2 text-center">
-        <UserAvatar seed={profile.id} avatarUrl={profile.avatarUrl} size={100} />
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <UserAvatar seed={profile.id} avatarUrl={profile.avatarUrl} size={80} />
+          <div className="flex flex-col gap-1">
+            <h2 className="text-xl font-medium tracking-tight">
+              {profile.fullName || "Unnamed User"}
+            </h2>
+            {profile.memberSinceYear && (
+              <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Calendar className="size-3.5" />
+                Member since {profile.memberSinceYear}
+              </span>
+            )}
+          </div>
+        </div>
 
-        <h2 className="mt-2 text-xl font-medium tracking-tight">
-          {profile.fullName || "Unnamed User"}
-        </h2>
-
-        {profile.memberSinceYear && (
-          <span className="flex items-center gap-1.5 rounded-full bg-primary-soft px-2.5 py-1 text-sm font-medium text-primary">
-            <Calendar className="size-3.5" />
-            Member since {profile.memberSinceYear}
-          </span>
-        )}
-
-        <div className="mt-1 flex flex-col items-start gap-1 text-sm">
+        <div className="flex flex-col gap-1 text-sm">
           <span className="flex items-center gap-2 text-muted-foreground">
             <IdCard className="size-4" />
             {ROLE_LABELS[profile.role]}
@@ -118,7 +132,7 @@ function ProfilePage() {
 
         <Button
           variant="outline"
-          className="mt-3 w-full"
+          className="w-full"
           onClick={() => setEditOpen(true)}
         >
           <Pencil className="size-3.5" />
@@ -136,6 +150,7 @@ function ProfilePage() {
       <Button
         className="w-full bg-[#FEE2E2] text-[#DC2626] hover:bg-[#FECACA]"
         onClick={() => setLogoutOpen(true)}
+        size="lg"
       >
         <LogOut className="size-4" />
         Log Out
@@ -191,7 +206,7 @@ function MenuTile({ label, onClick }: { label: string; onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center justify-between rounded-xl border border-outline bg-background px-3.5 py-3 text-sm transition-colors hover:bg-muted"
+      className="flex w-full items-center justify-between rounded-4xl border border-outline bg-background px-4 py-3 text-sm transition-colors hover:bg-muted"
     >
       {label}
       <ChevronRight className="size-4 text-muted-foreground" />

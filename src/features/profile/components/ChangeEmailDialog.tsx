@@ -123,7 +123,7 @@ export function ChangeEmailDialog({
             <Label className="text-muted-foreground">Current Email</Label>
             {currentVerified && <CheckCircle2 className="size-[18px] text-primary" />}
           </div>
-          <div className="rounded-[10px] border border-outline bg-[#F9F9F9] px-3.5 py-3 text-sm">
+          <div className="rounded-4xl border border-outline bg-[#F9F9F9] px-3.5 py-3 text-sm">
             {currentEmail}
           </div>
 

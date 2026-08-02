@@ -6,7 +6,7 @@ import { InsightCard } from "@/features/dashboard/components/InsightCard";
 import { JobsStatus } from "@/features/dashboard/components/JobsStatus";
 import { RecentActivity } from "@/features/dashboard/components/RecentActivity";
 import { QuickActionCard } from "@/features/dashboard/components/QuickActionCard";
-import { ClipboardList, Boxes, UserPlus, Briefcase } from "lucide-react";
+import { Boxes, UserPlus, Briefcase } from "lucide-react";
 import { RequestsTrendChart } from "@/features/dashboard/components/RequestsTrendChart";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { useMonthlyTrend } from "@/features/dashboard/hooks/useMonthlyTrend";

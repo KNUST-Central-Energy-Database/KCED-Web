@@ -1,32 +1,34 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ClipboardList, CloudOff } from "lucide-react";
+import { ClipboardList, CloudOff, Filter, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DeleteServiceRequestDialog } from "@/features/service_request/components/DeleteServiceRequestDialog";
 import { ServiceRequestDetailDialog } from "@/features/service_request/components/ServiceRequestDetailDialog";
 import { ServiceRequestsTable } from "@/features/service_request/components/ServiceRequestsTable";
 import { useServiceRequests } from "@/features/service_request/hooks/useServiceRequests";
 import {
   SERVICE_REQUEST_STATUSES,
+  type Jurisdiction,
   type ServiceRequest,
   type ServiceRequestStatus,
 } from "@/features/service_request/schema";
+import { fetchJurisdictions } from "@/features/service_request/services/service_request.service";
 import { WorkOrderFormDialog } from "@/features/work_order/components/WorkOrderFormDialog";
 import { toast } from "sonner";
 
-// The `/dashboard` layout route (route.tsx) supplies the sidebar shell and the
-// requireAuth guard; this is the service requests page, ported from the
-// kced_mobile service requests screen (as a data table, with a web-only
-// status filter). Rows open a detail dialog with the create-work-order and
-// delete actions from the mobile detail screen.
 export const Route = createFileRoute("/dashboard/service-requests")({
   component: ServiceRequests,
 });
@@ -36,6 +38,8 @@ type StatusFilter = ServiceRequestStatus | "all";
 function ServiceRequests() {
   const { requests, loading, error, reload } = useServiceRequests();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [jurisdictionFilter, setJurisdictionFilter] = useState<number | "all">("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [viewing, setViewing] = useState<ServiceRequest | null>(null);
@@ -44,13 +48,35 @@ function ServiceRequests() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState<ServiceRequest | null>(null);
 
-  const filtered = useMemo(
-    () =>
-      statusFilter === "all"
-        ? requests
-        : requests.filter((r) => r.status === statusFilter),
-    [requests, statusFilter],
-  );
+  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
+
+  useEffect(() => {
+    fetchJurisdictions()
+      .then(setJurisdictions)
+      .catch(() => {});
+  }, []);
+
+  const filtered = useMemo(() => {
+    let result = requests;
+
+    if (statusFilter !== "all") {
+      result = result.filter((r) => r.status === statusFilter);
+    }
+    if (jurisdictionFilter !== "all") {
+      result = result.filter((r) => r.jurisdictionId === jurisdictionFilter);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (r) =>
+          r.issue.toLowerCase().includes(q) ||
+          r.description.toLowerCase().includes(q) ||
+          r.reporter.toLowerCase().includes(q) ||
+          (r.requestNumber ?? `#${r.id.slice(0, 8)}`).toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [requests, statusFilter, jurisdictionFilter, searchQuery]);
 
   const openView = (request: ServiceRequest) => {
     setViewing(request);
@@ -73,33 +99,88 @@ function ServiceRequests() {
     setDeleteOpen(true);
   };
 
+  const activeFilterCount =
+    (statusFilter !== "all" ? 1 : 0) + (jurisdictionFilter !== "all" ? 1 : 0);
+
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-semibold tracking-tight">Service Requests</h2>
-          <p className="text-sm text-muted-foreground">
-            {loading
-              ? "Loading requests…"
-              : `${requests.length} ${requests.length === 1 ? "request" : "requests"}`}
-          </p>
+    <div className="flex w-full flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-xl font-semibold tracking-tight">Service Requests</h2>
+        <p className="text-sm text-muted-foreground">
+          {loading
+            ? "Loading requests…"
+            : `Manage and track all submitted service requests across jurisdictions`}
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3 justify-between">
+        <div className="relative w-72">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search requests..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
         </div>
-        <Select
-          value={statusFilter}
-          onValueChange={(val) => setStatusFilter(val as StatusFilter)}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            {SERVICE_REQUEST_STATUSES.map((s) => (
-              <SelectItem key={s.dbValue} value={s.dbValue}>
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Filter className="size-4" />
+              Filter
+              {activeFilterCount > 0 && (
+                <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                  {activeFilterCount}
+                </span>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[12rem]">
+            <DropdownMenuLabel>Filters</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem onSelect={() => setStatusFilter("all")}>
+                  All statuses
+                </DropdownMenuItem>
+                {SERVICE_REQUEST_STATUSES.map((s) => (
+                  <DropdownMenuItem key={s.dbValue} onSelect={() => setStatusFilter(s.dbValue)}>
+                    {s.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Jurisdiction</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="max-h-64 overflow-y-auto">
+                <DropdownMenuItem onSelect={() => setJurisdictionFilter("all")}>
+                  All jurisdictions
+                </DropdownMenuItem>
+                {jurisdictions.map((j) => (
+                  <DropdownMenuItem key={j.id} onSelect={() => setJurisdictionFilter(j.id)}>
+                    {j.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            {activeFilterCount > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => {
+                    setStatusFilter("all");
+                    setJurisdictionFilter("all");
+                  }}
+                >
+                  Clear all filters
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {loading ? (

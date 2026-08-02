@@ -45,75 +45,75 @@ export function ServiceRequestsTable({
 }: ServiceRequestsTableProps) {
   return (
     <>
-      <div className="hidden overflow-x-auto rounded-[10px] border border-outline md:block">
+      <div className="hidden overflow-x-auto rounded-4xl border border-outline md:block">
         <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-outline bg-[#F9F9F9] text-left text-xs text-muted-foreground">
-            <th className="px-4 py-2.5 font-medium">Number</th>
-            <th className="px-4 py-2.5 font-medium">Issue</th>
-            <th className="px-4 py-2.5 font-medium">Status</th>
-            <th className="px-4 py-2.5 font-medium">Jurisdiction</th>
-            <th className="px-4 py-2.5 font-medium">Reporter</th>
-            <th className="px-4 py-2.5 font-medium">Submitted</th>
-            <th className="w-10 px-2 py-2.5" />
-          </tr>
-        </thead>
-        <tbody>
-          {requests.map((request) => (
-            <tr
-              key={request.id}
-              className="cursor-pointer border-b border-outline transition-colors last:border-b-0 hover:bg-muted/50"
-              onClick={() => onView(request)}
-            >
-              <td className="whitespace-nowrap px-4 py-3 tabular-nums text-muted-foreground">
-                {displayNumber(request)}
-              </td>
-              <td className="max-w-72 px-4 py-3">
-                <p className="truncate font-medium">{request.issue || "Untitled request"}</p>
-                {request.description && (
-                  <p className="truncate text-xs text-muted-foreground">
-                    {request.description}
-                  </p>
-                )}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3">
-                <RequestStatusPill status={request.status} />
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                {request.jurisdictionCode ?? "Unassigned"}
-              </td>
-              <td className="max-w-40 truncate px-4 py-3 text-muted-foreground">
-                {request.reporter || "Anonymous"}
-              </td>
-              <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                {request.createdAt ? formatDate(request.createdAt) : "Date unknown"}
-              </td>
-              {/* Stop row-click so the menu doesn't also open the detail. */}
-              <td className="px-2 py-3" onClick={(e) => e.stopPropagation()}>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="size-7">
-                      <MoreVertical className="size-4 text-muted-foreground" />
-                      <span className="sr-only">Actions</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={() => onView(request)}>
-                      <Eye /> View details
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={() => onCreateWorkOrder(request)}>
-                      <Briefcase /> Create work order
-                    </DropdownMenuItem>
-                    <DropdownMenuItem variant="destructive" onSelect={() => onDelete(request)}>
-                      <Trash2 /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </td>
+          <thead>
+            <tr className="border-b border-outline bg-[#F9F9F9] text-center">
+              <th className="px-4 py-2.5 font-medium">Number</th>
+              <th className="px-4 py-2.5 font-medium">Issue</th>
+              <th className="px-4 py-2.5 font-medium">Status</th>
+              <th className="px-4 py-2.5 font-medium">Jurisdiction</th>
+              <th className="px-4 py-2.5 font-medium">Reporter</th>
+              <th className="px-4 py-2.5 font-medium">Submitted</th>
+              <th className="w-10 px-2 py-2.5" />
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {requests.map((request) => (
+              <tr
+                key={request.id}
+                className="cursor-pointer border-b border-outline transition-colors last:border-b-0 hover:bg-muted/50"
+                onClick={() => onView(request)}
+              >
+                <td className="whitespace-nowrap px-4 py-3 tabular-nums text-muted-foreground">
+                  {displayNumber(request)}
+                </td>
+                <td className="max-w-72 px-4 py-3">
+                  <p className="truncate font-medium">{request.issue || "Untitled request"}</p>
+                  {request.description && (
+                    <p className="truncate text-xs text-muted-foreground">
+                      {request.description}
+                    </p>
+                  )}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3">
+                  <RequestStatusPill status={request.status} />
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+                  {request.jurisdictionCode ?? "Unassigned"}
+                </td>
+                <td className="max-w-40 truncate px-4 py-3 text-muted-foreground">
+                  {request.reporter || "Anonymous"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+                  {request.createdAt ? formatDate(request.createdAt) : "Date unknown"}
+                </td>
+                {/* Stop row-click so the menu doesn't also open the detail. */}
+                <td className="px-2 py-3" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="size-7">
+                        <MoreVertical className="size-4 text-muted-foreground" />
+                        <span className="sr-only">Actions</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => onView(request)}>
+                        <Eye /> View details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => onCreateWorkOrder(request)}>
+                        <Briefcase /> Create work order
+                      </DropdownMenuItem>
+                      <DropdownMenuItem variant="destructive" onSelect={() => onDelete(request)}>
+                        <Trash2 /> Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Mobile: the kced_mobile card layout — white top (number, status

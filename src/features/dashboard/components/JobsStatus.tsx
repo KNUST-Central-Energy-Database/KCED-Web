@@ -57,8 +57,9 @@ export function JobsStatus({ workOrdersByStatus, totalWorkOrders, loading }: Job
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  innerRadius={50}
+                  innerRadius={60}
                   outerRadius={80}
+                  cornerRadius={12}
                   strokeWidth={2}
                   stroke="#fff"
                 >

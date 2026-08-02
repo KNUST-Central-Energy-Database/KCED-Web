@@ -1,15 +1,20 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Boxes, CloudOff } from "lucide-react";
+import { Boxes, CloudOff, Filter, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AssetDetailDialog } from "@/features/asset/components/AssetDetailDialog";
 import { AssetsTable } from "@/features/asset/components/AssetsTable";
 import { useAssets } from "@/features/asset/hooks/useAssets";
@@ -36,67 +41,120 @@ function Assets() {
   const { assets, loading, error, reload } = useAssets();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [viewing, setViewing] = useState<Asset | null>(null);
 
-  const filtered = useMemo(
-    () =>
-      assets.filter(
+  const filtered = useMemo(() => {
+    let result = assets;
+
+    if (typeFilter !== "all") {
+      result = result.filter((a) => a.assetType === typeFilter);
+    }
+    if (statusFilter !== "all") {
+      result = result.filter((a) => a.operationalStatus === statusFilter);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
         (a) =>
-          (typeFilter === "all" || a.assetType === typeFilter) &&
-          (statusFilter === "all" || a.operationalStatus === statusFilter),
-      ),
-    [assets, typeFilter, statusFilter],
-  );
+          a.assetCode.toLowerCase().includes(q) ||
+          (a.location ?? "").toLowerCase().includes(q) ||
+          (a.manufacturer ?? "").toLowerCase().includes(q) ||
+          (a.serialNumber ?? "").toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [assets, typeFilter, statusFilter, searchQuery]);
 
   const openView = (asset: Asset) => {
     setViewing(asset);
     setDetailOpen(true);
   };
 
+  const activeFilterCount =
+    (typeFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0);
+
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-2xl font-semibold tracking-tight">Assets</h2>
-          <p className="text-sm text-muted-foreground">
-            {loading
-              ? "Loading assets…"
-              : `${assets.length} ${assets.length === 1 ? "asset" : "assets"}`}
-          </p>
+    <div className="flex w-full flex-col gap-6">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-xl font-semibold tracking-tight">Assets</h2>
+        <p className="text-sm text-muted-foreground">
+          {loading
+            ? "Loading assets…"
+            : `View and manage all registered assets across jurisdictions`}
+        </p>
+      </div>
+
+      <div className="flex items-center justify-between gap-3">
+        <div className="relative w-72">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search assets..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9"
+          />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Select value={typeFilter} onValueChange={(val) => setTypeFilter(val as TypeFilter)}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All types</SelectItem>
-              {ASSET_TYPES.map((t) => (
-                <SelectItem key={t.dbValue} value={t.dbValue}>
-                  {t.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select
-            value={statusFilter}
-            onValueChange={(val) => setStatusFilter(val as StatusFilter)}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              {OPERATIONAL_STATUSES.map((s) => (
-                <SelectItem key={s.dbValue} value={s.dbValue}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="gap-2">
+              <Filter className="size-4" />
+              Filter
+              {activeFilterCount > 0 && (
+                <span className="ml-1 flex size-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                  {activeFilterCount}
+                </span>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-[12rem]">
+            <DropdownMenuLabel>Filters</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Type</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem onSelect={() => setTypeFilter("all")}>
+                  All types
+                </DropdownMenuItem>
+                {ASSET_TYPES.map((t) => (
+                  <DropdownMenuItem key={t.dbValue} onSelect={() => setTypeFilter(t.dbValue)}>
+                    {t.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem onSelect={() => setStatusFilter("all")}>
+                  All statuses
+                </DropdownMenuItem>
+                {OPERATIONAL_STATUSES.map((s) => (
+                  <DropdownMenuItem key={s.dbValue} onSelect={() => setStatusFilter(s.dbValue)}>
+                    {s.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            {activeFilterCount > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => {
+                    setTypeFilter("all");
+                    setStatusFilter("all");
+                  }}
+                >
+                  Clear all filters
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {loading ? (

@@ -40,95 +40,94 @@ function formatDeadline(iso: string): string {
 export function WorkOrdersTable({ workOrders, onView, onEdit, onDelete }: WorkOrdersTableProps) {
   return (
     <>
-      <div className="hidden overflow-x-auto rounded-[10px] border border-outline md:block">
+      <div className="hidden overflow-x-auto rounded-4xl border border-outline md:block">
         <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-outline bg-[#F9F9F9] text-left text-xs text-muted-foreground">
-            <th className="px-4 py-2.5 font-medium">Number</th>
-            <th className="px-4 py-2.5 font-medium">Title</th>
-            <th className="px-4 py-2.5 font-medium">Status</th>
-            <th className="px-4 py-2.5 font-medium">Category</th>
-            <th className="px-4 py-2.5 font-medium">Jurisdiction</th>
-            <th className="px-4 py-2.5 font-medium">Assigned To</th>
-            <th className="px-4 py-2.5 font-medium">Deadline</th>
-            <th className="w-10 px-2 py-2.5" />
-          </tr>
-        </thead>
-        <tbody>
-          {workOrders.map((order) => {
-            const overdue = isOverdue(order);
-            return (
-              <tr
-                key={order.id}
-                className="cursor-pointer border-b border-outline transition-colors last:border-b-0 hover:bg-muted/50"
-                onClick={() => onView(order)}
-              >
-                <td className="whitespace-nowrap px-4 py-3 tabular-nums text-muted-foreground">
-                  {displayNumber(order)}
-                </td>
-                <td className="max-w-72 px-4 py-3">
-                  <p className="truncate font-medium">
-                    {order.title || "Untitled work order"}
-                  </p>
-                  {order.description && (
-                    <p className="truncate text-xs text-muted-foreground">
-                      {order.description}
+          <thead>
+            <tr className="border-b border-outline bg-[#F9F9F9] text-center">
+              <th className="px-4 py-2.5 font-medium">Number</th>
+              <th className="px-4 py-2.5 font-medium">Title</th>
+              <th className="px-4 py-2.5 font-medium">Status</th>
+              <th className="px-4 py-2.5 font-medium">Category</th>
+              <th className="px-4 py-2.5 font-medium">Jurisdiction</th>
+              <th className="px-4 py-2.5 font-medium">Assigned To</th>
+              <th className="px-4 py-2.5 font-medium">Deadline</th>
+              <th className="w-10 px-2 py-2.5" />
+            </tr>
+          </thead>
+          <tbody>
+            {workOrders.map((order) => {
+              const overdue = isOverdue(order);
+              return (
+                <tr
+                  key={order.id}
+                  className="cursor-pointer border-b border-outline transition-colors last:border-b-0 hover:bg-muted/50"
+                  onClick={() => onView(order)}
+                >
+                  <td className="whitespace-nowrap px-4 py-3 tabular-nums text-muted-foreground">
+                    {displayNumber(order)}
+                  </td>
+                  <td className="max-w-72 px-4 py-3">
+                    <p className="truncate font-medium">
+                      {order.title || "Untitled work order"}
                     </p>
-                  )}
-                </td>
-                <td className="whitespace-nowrap px-4 py-3">
-                  <WorkOrderStatusPill status={order.status} />
-                </td>
-                <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                  {categoryLabel(order.category)}
-                </td>
-                <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                  {order.jurisdictionCode ?? "Unassigned"}
-                </td>
-                {/* Stop row-click so interacting with the hover card doesn't
+                    {order.description && (
+                      <p className="truncate text-xs text-muted-foreground">
+                        {order.description}
+                      </p>
+                    )}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    <WorkOrderStatusPill status={order.status} />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+                    {categoryLabel(order.category)}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+                    {order.jurisdictionCode ?? "Unassigned"}
+                  </td>
+                  {/* Stop row-click so interacting with the hover card doesn't
                     also open the detail. */}
-                <td
-                  className="max-w-40 truncate px-4 py-3"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <TechnicianHoverCard technician={order.leadTechnician} />
-                </td>
-                <td
-                  className={`whitespace-nowrap px-4 py-3 ${
-                    overdue ? "text-error" : "text-muted-foreground"
-                  }`}
-                >
-                  {order.deadline
-                    ? `${overdue ? "Overdue — " : ""}${formatDeadline(order.deadline)}`
-                    : "No deadline"}
-                </td>
-                {/* Stop row-click so the menu doesn't also open the detail. */}
-                <td className="px-2 py-3" onClick={(e) => e.stopPropagation()}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="size-7">
-                        <MoreVertical className="size-4 text-muted-foreground" />
-                        <span className="sr-only">Actions</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => onView(order)}>
-                        <Eye /> View details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => onEdit(order)}>
-                        <Pencil /> Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem variant="destructive" onSelect={() => onDelete(order)}>
-                        <Trash2 /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  <td
+                    className="max-w-40 truncate px-4 py-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <TechnicianHoverCard technician={order.leadTechnician} />
+                  </td>
+                  <td
+                    className={`whitespace-nowrap px-4 py-3 ${overdue ? "text-error" : "text-muted-foreground"
+                      }`}
+                  >
+                    {order.deadline
+                      ? `${overdue ? "Overdue — " : ""}${formatDeadline(order.deadline)}`
+                      : "No deadline"}
+                  </td>
+                  {/* Stop row-click so the menu doesn't also open the detail. */}
+                  <td className="px-2 py-3" onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="size-7">
+                          <MoreVertical className="size-4 text-muted-foreground" />
+                          <span className="sr-only">Actions</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => onView(order)}>
+                          <Eye /> View details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => onEdit(order)}>
+                          <Pencil /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem variant="destructive" onSelect={() => onDelete(order)}>
+                          <Trash2 /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       {/* Mobile: the kced_mobile card layout — white top (id, status pill,

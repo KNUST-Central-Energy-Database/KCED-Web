@@ -14,10 +14,10 @@ interface AssetsTableProps {
 export function AssetsTable({ assets, onView }: AssetsTableProps) {
   return (
     <>
-      <div className="hidden overflow-x-auto rounded-[10px] border border-outline md:block">
+      <div className="hidden overflow-x-auto rounded-4xl border border-outline md:block">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-outline bg-[#F9F9F9] text-left text-xs text-muted-foreground">
+            <tr className="border-b border-outline bg-[#F9F9F9] text-center">
               <th className="px-4 py-2.5 font-medium">Code</th>
               <th className="px-4 py-2.5 font-medium">Type</th>
               <th className="px-4 py-2.5 font-medium">Status</th>
@@ -63,10 +63,10 @@ export function AssetsTable({ assets, onView }: AssetsTableProps) {
                 <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
                   {asset.nextMaintenance
                     ? new Date(asset.nextMaintenance).toLocaleDateString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
                     : "—"}
                 </td>
               </tr>

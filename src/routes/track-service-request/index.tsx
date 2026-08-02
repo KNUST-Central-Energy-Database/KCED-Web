@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { CheckCircle, Circle, Clock, Loader2, SearchX, XCircle } from "lucide-react";
+import { CheckCircle, Circle, Clock, Loader2, SearchX, XCircle, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,9 +54,9 @@ function stepStatus(index: number, current: number, resolved: boolean): StepStat
 }
 
 function StepIcon({ status }: { status: StepStatus }) {
-  if (status === "completed") return <CheckCircle className="w-7 h-7 text-primary" />;
-  if (status === "current") return <Clock className="w-7 h-7 text-primary" />;
-  return <Circle className="w-7 h-7 text-outline" />;
+  if (status === "completed") return <CheckCircle className="size-5 text-primary" />;
+  if (status === "current") return <Clock className="size-5 text-primary" />;
+  return <Circle className="size-5 text-outline" />;
 }
 
 function TrackServiceRequest() {
@@ -118,9 +118,9 @@ function TrackServiceRequest() {
 
   return (
     <>
-      <header className="border-b border-outline">
+      <header className="border-b border-outline bg-primary-soft">
         <div className="py-6 max-w-7xl mx-auto px-6">
-          <Link to="/" className="flex items-center space-x-3">
+          <Link to="/" className="inline-flex items-center gap-1">
             <img
               src="/assets/images/knust-logo.png"
               alt="KNUST Crest"
@@ -140,6 +140,10 @@ function TrackServiceRequest() {
 
       <main className="max-w-xl mx-auto px-6 py-12 space-y-8">
         <div className="flex flex-col gap-1">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2">
+            <ArrowLeft className="size-4" />
+            Back
+          </Link>
           <h2 className="text-2xl font-semibold tracking-tight">Track Request</h2>
           {showStepper ? (
             <p className="text-sm text-muted-foreground">
@@ -153,7 +157,7 @@ function TrackServiceRequest() {
         </div>
 
         {!showStepper ? (
-          <div className="bg-white border border-outline rounded-2xl p-4 md:p-8 space-y-4">
+          <div className="bg-white border border-outline rounded-4xl p-4 md:p-8 space-y-4">
             <div className="flex flex-col gap-1.5">
               <label htmlFor="ref" className="text-sm font-medium">
                 Reference Number

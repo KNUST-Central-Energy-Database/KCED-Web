@@ -107,21 +107,34 @@ export interface TrackedRequest {
 
 /**
  * Look up a request by its `request_number` for the public tracking page.
- * Case-insensitive. Returns null when no request matches.
+ * Calls the `track-request` edge function which joins service_requests
+ * with work_orders to compute the real-time tracking status.
+ * Returns null when no request matches.
  */
 export async function trackServiceRequest(
   requestNumber: string,
 ): Promise<TrackedRequest | null> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select("request_number, status, created_at")
-    .ilike("request_number", requestNumber.trim())
-    .maybeSingle();
-  if (error) throw error;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+  const res = await fetch(`${supabaseUrl}/functions/v1/track-request`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${supabaseAnonKey}`,
+    },
+    body: JSON.stringify({ requestNumber: requestNumber.trim() }),
+  });
+
+  if (!res.ok) throw new Error(`Tracking request failed: ${res.statusText}`);
+
+  const { data, error } = await res.json();
+  if (error) throw new Error(error);
   if (!data) return null;
+
   return {
-    requestNumber: data.request_number?.toString() ?? requestNumber.trim(),
-    status: (data.status ?? "submitted") as ServiceRequestStatus,
-    createdAt: data.created_at ?? null,
+    requestNumber: data.requestNumber,
+    status: data.status as ServiceRequestStatus,
+    createdAt: data.createdAt,
   };
 }

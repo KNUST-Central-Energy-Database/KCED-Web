@@ -29,8 +29,8 @@ function HomePage() {
   return (
     <>
       <header className="flex md:grid grid-cols-1 md:grid-cols-3 transition-all duration-300 md:border-b border-primary justify-between items-center">
-        <div className="pt-4 md:pt-8 px-4 md:px-10 pb-8 md:pb-10 md:bg-primary-soft">
-          <Link to="/" className="inline-flex items-center space-x-3">
+        <div className="pt-4 md:pt-8 px-4 md:px-10 pb-6 md:pb-10 md:bg-primary-soft">
+          <Link to="/" className="inline-flex items-center space-x-1 md:space-x-3">
             <img
               src="/assets/images/knust-logo.png"
               alt="KNUST Crest"
@@ -67,7 +67,7 @@ function HomePage() {
             </h2>
           </div>
 
-          <div className="flex flex-col gap-12 md:gap-24 py-10 md:px-38 col-span-2 items-center">
+          <div className="flex flex-col gap-16 md:gap-24 py-10 md:px-38 col-span-2 items-center">
 
             {/* Non-urgent */}
             <div className="w-full flex flex-col gap-4 not-md:px-4">
@@ -153,17 +153,17 @@ function HomePage() {
 
         {/* Footer */}
         <footer className="bg-primary-soft/70 p-6 md:p-14 flex flex-col md:items-end md:flex-row not-md:space-y-13 text-sm md:text-base">
-          <Link to="/" className="flex-1 flex items-center space-x-3">
+          <Link to="/" className="flex-1 flex items-center space-x-1 md:space-x-3">
             <img
               src="/assets/images/knust-logo.png"
               alt="KNUST Crest"
-              className="h-11 w-auto md:h-22"
+              className="h-13 w-auto md:h-22"
             />
             <div className="pt-4 flex flex-col">
-              <h1 className="font-garamond font-semibold text-xl md:text-3xl tracking-tight m-0 leading-tight">
+              <h1 className="font-garamond font-semibold text-lg md:text-3xl tracking-tight m-0 leading-tight">
                 KNUST
               </h1>
-              <p className="font-medium m-0 -mt-0.5 leading-normal not-md:text-sm">
+              <p className="font-medium m-0 -mt-0.5 leading-normal not-md:text-[10px]">
                 Central Energy Database
               </p>
             </div>

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RequestForm } from "./RequestForm";
 
@@ -18,7 +19,7 @@ export function ServiceRequestScreen() {
     <>
       <header className="border-b border-outline bg-primary-soft">
         <div className="py-6 max-w-7xl mx-auto px-6">
-          <Link to="/" className="inline-flex items-center space-x-3">
+          <Link to="/" className="inline-flex items-center gap-1">
             <img
               src="/assets/images/knust-logo.png"
               alt="KNUST Crest"
@@ -40,6 +41,10 @@ export function ServiceRequestScreen() {
 
         {/* Form Title */}
         <div className="flex flex-col gap-1">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2">
+            <ArrowLeft className="size-4" />
+            Back
+          </Link>
           <h1 className="font-semibold text-2xl tracking-tight">
             Service Request
           </h1>
@@ -49,7 +54,7 @@ export function ServiceRequestScreen() {
         </div>
 
         {/* Form card */}
-        <div className="border border-outline rounded-2xl p-4 md:p-8">
+        <div className="border border-outline rounded-4xl p-4 md:p-8">
           <RequestForm />
         </div>
       </main>
