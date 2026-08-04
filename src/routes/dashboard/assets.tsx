@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AssetDetailDialog } from "@/features/asset/components/AssetDetailDialog";
+import { AssetFormDialog } from "@/features/asset/components/AssetFormDialog";
 import { AssetsTable } from "@/features/asset/components/AssetsTable";
 import { useAssets } from "@/features/asset/hooks/useAssets";
 import {
@@ -82,6 +83,15 @@ function Assets() {
   const openView = (asset: Asset) => {
     setViewing(asset);
     setDetailOpen(true);
+  };
+
+  const [editing, setEditing] = useState<Asset | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+
+  const openEdit = (asset: Asset) => {
+    setDetailOpen(false);
+    setEditing(asset);
+    setFormOpen(true);
   };
 
   const activeFilterCount =
@@ -213,7 +223,8 @@ function Assets() {
         <AssetsTable assets={filtered} onView={openView} />
       )}
 
-      <AssetDetailDialog asset={viewing} open={detailOpen} onOpenChange={setDetailOpen} />
+      <AssetDetailDialog asset={viewing} open={detailOpen} onOpenChange={setDetailOpen} onEdit={openEdit} />
+      <AssetFormDialog asset={editing} open={formOpen} onOpenChange={setFormOpen} onSaved={reload} />
     </div>
   );
 }

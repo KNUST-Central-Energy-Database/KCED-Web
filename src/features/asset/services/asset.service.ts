@@ -4,9 +4,7 @@ import type { Asset } from "@/features/asset/schema";
 const TABLE = "assets";
 
 /**
- * Asset queries. Read-only for now — create/edit lands later. The web portal
- * is admin-facing, so queries are global (no jurisdiction scoping). Throws on
- * failure so callers can catch → error state.
+ * Asset queries. Throws on failure so callers can catch → error state.
  */
 
 /** Map a raw `assets` row (with joined jurisdiction) to an `Asset`. */
@@ -44,4 +42,38 @@ export async function fetchAssets(): Promise<Asset[]> {
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map(mapAsset);
+}
+
+/** Update an asset's editable fields. */
+export async function updateAsset(
+  id: string,
+  updates: {
+    manufacturer?: string | null;
+    serialNumber?: string | null;
+    location?: string | null;
+    installationDate?: string | null;
+    condition?: Asset["condition"];
+    operationalStatus?: Asset["operationalStatus"];
+    observedIssues?: string | null;
+    lastMaintenance?: string | null;
+    nextMaintenance?: string | null;
+    specifications?: Record<string, unknown>;
+  },
+): Promise<void> {
+  const payload: Record<string, unknown> = {};
+  if (updates.manufacturer !== undefined) payload.manufacturer = updates.manufacturer || null;
+  if (updates.serialNumber !== undefined) payload.serial_number = updates.serialNumber || null;
+  if (updates.location !== undefined) payload.location = updates.location || null;
+  if (updates.installationDate !== undefined) payload.installation_date = updates.installationDate || null;
+  if (updates.condition !== undefined) payload.condition = updates.condition;
+  if (updates.operationalStatus !== undefined) payload.operational_status = updates.operationalStatus;
+  if (updates.observedIssues !== undefined) payload.observed_issues = updates.observedIssues || null;
+  if (updates.lastMaintenance !== undefined) payload.last_maintenance = updates.lastMaintenance || null;
+  if (updates.nextMaintenance !== undefined) payload.next_maintenance = updates.nextMaintenance || null;
+  if (updates.specifications !== undefined) payload.specifications = updates.specifications;
+
+  if (Object.keys(payload).length === 0) return;
+
+  const { error } = await supabase.from(TABLE).update(payload).eq("id", id);
+  if (error) throw new Error("Could not update asset. Please try again.");
 }

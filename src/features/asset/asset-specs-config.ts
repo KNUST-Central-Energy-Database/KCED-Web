@@ -44,9 +44,6 @@ export const ASSET_SPEC_FIELDS: Record<AssetType, SpecField[]> = {
     { key: "certification_valid_until", label: "Certification Valid Until", type: "date" },
   ],
   solar_pv: [
-    { key: "system_capacity_kwp", label: "System Capacity (kWp)", type: "number" },
-    { key: "panel_count", label: "Panel Count", type: "number" },
-    { key: "panel_wattage_w", label: "Panel Wattage (W)", type: "number" },
     { key: "inverter_capacity_kw", label: "Inverter Capacity (kW)", type: "number" },
     { key: "battery_capacity_kwh", label: "Battery Capacity (kWh)", type: "number" },
     {

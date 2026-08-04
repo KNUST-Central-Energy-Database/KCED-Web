@@ -1,4 +1,4 @@
-import { Building2, ImageOff, MapPin, X } from "lucide-react";
+import { Building2, ImageOff, MapPin, Pencil, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Sheet,
@@ -22,6 +22,7 @@ interface AssetDetailDialogProps {
   asset: Asset | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onEdit: (asset: Asset) => void;
 }
 
 /** "20 Jul 2026" for a date-only column value. */
@@ -54,7 +55,7 @@ function specValue(field: SpecField, raw: unknown): string {
  * `ASSET_SPEC_FIELDS`, so each asset type shows its own fields; unknown
  * extra keys in the jsonb are listed too rather than hidden.
  */
-export function AssetDetailDialog({ asset, open, onOpenChange }: AssetDetailDialogProps) {
+export function AssetDetailDialog({ asset, open, onOpenChange, onEdit }: AssetDetailDialogProps) {
   if (!asset) return null;
 
   const specFields = ASSET_SPEC_FIELDS[asset.assetType] ?? [];
@@ -75,6 +76,10 @@ export function AssetDetailDialog({ asset, open, onOpenChange }: AssetDetailDial
             {asset.operationalStatus && (
               <OperationalStatusPill status={asset.operationalStatus} />
             )}
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => onEdit(asset)}>
+              <Pencil className="size-3.5" />
+              Edit
+            </Button>
             <SheetClose asChild>
               <Button variant="ghost" size="icon-sm">
                 <X />
@@ -117,9 +122,11 @@ export function AssetDetailDialog({ asset, open, onOpenChange }: AssetDetailDial
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <Section title="Manufacturer">
-              <p className="text-sm font-medium">{asset.manufacturer ?? "—"}</p>
-            </Section>
+            {asset.assetType !== "solar_pv" && (
+              <Section title="Manufacturer">
+                <p className="text-sm font-medium">{asset.manufacturer ?? "—"}</p>
+              </Section>
+            )}
             <Section title="Serial Number">
               <p className="text-sm font-medium tabular-nums">
                 {asset.serialNumber ?? "—"}
