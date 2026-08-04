@@ -19,11 +19,13 @@ import { useUsers } from "@/features/user/hooks/useUsers";
 import {
   USER_ROLES,
   USER_STATUSES,
+  type User,
   type UserRole,
   type UserStatus,
 } from "@/features/user/schema";
 import { UsersTable } from "@/features/user/components/UsersTable";
 import { InviteUserDialog } from "@/features/user/components/InviteUserDialog";
+import { EditUserDialog } from "@/features/user/components/EditUserDialog";
 import { fetchProfile, type Profile } from "@/features/profile/services/profile.service";
 
 export const Route = createFileRoute("/dashboard/users")({
@@ -39,10 +41,17 @@ function Users() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [editing, setEditing] = useState<User | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     fetchProfile().then(setProfile).catch(() => {});
   }, []);
+
+  const openEdit = (user: User) => {
+    setEditing(user);
+    setEditOpen(true);
+  };
 
   const filtered = useMemo(() => {
     let result = users;
@@ -182,8 +191,10 @@ function Users() {
           </p>
         </div>
       ) : (
-        <UsersTable users={filtered} />
+        <UsersTable users={filtered} currentUserId={profile?.id ?? null} onEdit={openEdit} />
       )}
+
+      <EditUserDialog user={editing} open={editOpen} onOpenChange={setEditOpen} onSaved={reload} />
     </div>
   );
 }

@@ -105,7 +105,22 @@ export function AssetFormDialog({ asset, open, onOpenChange, onSaved }: AssetFor
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-4xl overflow-y-auto p-6" showCloseButton={false}>
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-4xl overflow-y-auto p-6"
+        showCloseButton={false}
+        onPointerDownOutside={(e) => {
+          const target = e.target as HTMLElement;
+          // Don't close the sheet while a select dropdown is open — the
+          // dismissing click registers as "outside" the sheet content.
+          if (
+            target.closest('[data-radix-popper-content-wrapper]') ||
+            document.querySelector('[data-slot=select-content]')
+          ) {
+            e.preventDefault();
+          }
+        }}
+      >
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-1">
             <SheetTitle>Edit {asset.assetCode}</SheetTitle>

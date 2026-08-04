@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { User, UserRole } from "@/features/user/schema";
+import type { User, UserRole, UserStatus } from "@/features/user/schema";
 
 /** Load all users, newest first, with their jurisdiction name. */
 export async function fetchUsers(): Promise<User[]> {
@@ -25,6 +25,21 @@ export async function fetchUsers(): Promise<User[]> {
       createdAt: row.created_at ?? null,
     };
   });
+}
+
+/** Update a user's role and/or status. */
+export async function updateUser(
+  id: string,
+  updates: { role?: UserRole; status?: UserStatus },
+): Promise<void> {
+  const payload: Record<string, string> = {};
+  if (updates.role !== undefined) payload.role = updates.role;
+  if (updates.status !== undefined) payload.status = updates.status;
+
+  if (Object.keys(payload).length === 0) return;
+
+  const { error } = await supabase.from("users").update(payload).eq("id", id);
+  if (error) throw new Error("Could not update user. Please try again.");
 }
 
 /** Invite a user by email via the Supabase Edge Function. */

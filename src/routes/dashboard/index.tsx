@@ -15,6 +15,7 @@ import { fetchProfile, type Profile } from "@/features/profile/services/profile.
 import { useUsers } from "@/features/user/hooks/useUsers";
 import { WorkOrderFormDialog } from "@/features/work_order/components/WorkOrderFormDialog";
 import { useWorkOrders } from "@/features/work_order/hooks/useWorkOrders";
+import { AssetCreateDialog } from "@/features/asset/components/AssetCreateDialog";
 
 // The `/dashboard` layout route (route.tsx) supplies the sidebar shell and the
 // requireAuth guard; this is the dashboard home, ported from the kced_mobile
@@ -41,6 +42,7 @@ function DashboardIndex() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [workOrderOpen, setWorkOrderOpen] = useState(false);
+  const [assetOpen, setAssetOpen] = useState(false);
 
   useEffect(() => {
     getSession().then((session) => {
@@ -129,7 +131,7 @@ function DashboardIndex() {
             title="New Asset"
             subtext="Register and catalog new equipment"
             icon={Boxes}
-            to="/dashboard/assets"
+            onClick={() => setAssetOpen(true)}
             color="#FCD34D"
             titleColor="#D97706"
           />
@@ -167,7 +169,7 @@ function DashboardIndex() {
           totalWorkOrders={counts?.workOrderCount ?? null}
           loading={loading}
         />
-        <RecentActivity loading={loading} />
+        <RecentActivity />
       </div>
 
       <WorkOrderFormDialog
@@ -175,6 +177,11 @@ function DashboardIndex() {
         open={workOrderOpen}
         onOpenChange={setWorkOrderOpen}
         onSaved={reloadWorkOrders}
+      />
+      <AssetCreateDialog
+        open={assetOpen}
+        onOpenChange={setAssetOpen}
+        onSaved={() => {}}
       />
     </div>
   );

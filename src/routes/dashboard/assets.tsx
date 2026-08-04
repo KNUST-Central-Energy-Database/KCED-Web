@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Boxes, CloudOff, Filter, Search } from "lucide-react";
+import { Boxes, CloudOff, Filter, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AssetCreateDialog } from "@/features/asset/components/AssetCreateDialog";
 import { AssetDetailDialog } from "@/features/asset/components/AssetDetailDialog";
 import { AssetFormDialog } from "@/features/asset/components/AssetFormDialog";
 import { AssetsTable } from "@/features/asset/components/AssetsTable";
@@ -54,6 +55,7 @@ function Assets() {
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [viewing, setViewing] = useState<Asset | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const filtered = useMemo(() => {
     let result = assets;
@@ -99,13 +101,19 @@ function Assets() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-semibold tracking-tight">Assets</h2>
-        <p className="text-sm text-muted-foreground">
-          {loading
-            ? "Loading assets…"
-            : `View and manage all registered assets across jurisdictions`}
-        </p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-xl font-semibold tracking-tight">Assets</h2>
+          <p className="text-sm text-muted-foreground">
+            {loading
+              ? "Loading assets…"
+              : `View and manage all registered assets across jurisdictions`}
+          </p>
+        </div>
+        <Button size="sm" className="gap-1.5" onClick={() => setCreateOpen(true)}>
+          <Plus className="size-4" />
+          New Asset
+        </Button>
       </div>
 
       <div className="flex items-center justify-between gap-3">
@@ -225,6 +233,7 @@ function Assets() {
 
       <AssetDetailDialog asset={viewing} open={detailOpen} onOpenChange={setDetailOpen} onEdit={openEdit} />
       <AssetFormDialog asset={editing} open={formOpen} onOpenChange={setFormOpen} onSaved={reload} />
+      <AssetCreateDialog open={createOpen} onOpenChange={setCreateOpen} onSaved={reload} />
     </div>
   );
 }

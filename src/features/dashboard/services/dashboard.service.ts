@@ -134,52 +134,38 @@ export async function fetchDailyRequestTrend(year: number, month: number): Promi
   return buckets;
 }
 
+export type ActivityEntityType = "service_request" | "work_order" | "asset" | "user";
+
 export interface ActivityItem {
   id: string;
-  type: "service_request" | "work_order";
+  entityType: ActivityEntityType;
+  action: "created" | "status_changed";
   title: string;
-  status: string;
+  /** For status_changed: the new status. */
+  detail: string | null;
   createdAt: string;
 }
 
 /**
- * Fetches the most recent service requests and work orders for the
- * recent activity feed on the dashboard.
+ * Load the newest rows from `activity_log` for the dashboard feed. The table
+ * is populated by DB triggers on service_requests / work_orders / assets /
+ * users (see supabase/activity_log.sql), so events from the mobile app and
+ * anonymous submissions show up too.
  */
-export async function fetchRecentActivity(limit = 5): Promise<ActivityItem[]> {
-  const [requestsRes, ordersRes] = await Promise.all([
-    supabase
-      .from("service_requests")
-      .select("id, title, status, created_at")
-      .order("created_at", { ascending: false })
-      .limit(limit),
-    supabase
-      .from("work_orders")
-      .select("id, title, status, created_at")
-      .order("created_at", { ascending: false })
-      .limit(limit),
-  ]);
+export async function fetchRecentActivity(limit = 8): Promise<ActivityItem[]> {
+  const { data, error } = await supabase
+    .from("activity_log")
+    .select("id, entity_type, entity_id, action, title, detail, created_at")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
 
-  if (requestsRes.error) throw requestsRes.error;
-  if (ordersRes.error) throw ordersRes.error;
-
-  const items: ActivityItem[] = [
-    ...(requestsRes.data ?? []).map((r) => ({
-      id: r.id,
-      type: "service_request" as const,
-      title: r.title,
-      status: r.status,
-      createdAt: r.created_at,
-    })),
-    ...(ordersRes.data ?? []).map((o) => ({
-      id: o.id,
-      type: "work_order" as const,
-      title: o.title,
-      status: o.status,
-      createdAt: o.created_at,
-    })),
-  ];
-
-  items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  return items.slice(0, limit);
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    entityType: row.entity_type as ActivityEntityType,
+    action: row.action as ActivityItem["action"],
+    title: row.title ?? "",
+    detail: row.detail ?? null,
+    createdAt: row.created_at,
+  }));
 }

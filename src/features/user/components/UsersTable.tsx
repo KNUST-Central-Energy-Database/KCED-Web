@@ -12,6 +12,8 @@ import { ROLE_LABELS } from "@/features/profile/services/profile.service";
 
 interface UsersTableProps {
   users: User[];
+  currentUserId: string | null;
+  onEdit: (user: User) => void;
 }
 
 /** "20 Jul 2026" */
@@ -29,7 +31,7 @@ const ROLE_ICONS: Record<string, typeof Shield> = {
   manager: UserCog,
 };
 
-export function UsersTable({ users }: UsersTableProps) {
+export function UsersTable({ users, currentUserId, onEdit }: UsersTableProps) {
   return (
     <>
       <div className="hidden overflow-x-auto rounded-4xl border border-outline md:block">
@@ -90,19 +92,21 @@ export function UsersTable({ users }: UsersTableProps) {
                     {formatDate(user.createdAt)}
                   </td>
                   <td className="px-2 py-3">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-7">
-                          <MoreVertical className="size-4 text-muted-foreground" />
-                          <span className="sr-only">Actions</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <UserCog /> Edit role
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {currentUserId && user.id !== currentUserId && user.role !== "admin" && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="size-7">
+                            <MoreVertical className="size-4 text-muted-foreground" />
+                            <span className="sr-only">Actions</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onSelect={() => onEdit(user)}>
+                            <UserCog /> Edit role
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
                   </td>
                 </tr>
               );

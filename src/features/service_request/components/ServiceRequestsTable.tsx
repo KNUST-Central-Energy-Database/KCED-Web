@@ -1,4 +1,4 @@
-import { Briefcase, Eye, MapPin, MoreVertical, Trash2 } from "lucide-react";
+import { Briefcase, Eye, MapPin, MoreVertical, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ interface ServiceRequestsTableProps {
   onView: (request: ServiceRequest) => void;
   onCreateWorkOrder: (request: ServiceRequest) => void;
   onDelete: (request: ServiceRequest) => void;
+  onReopen: (request: ServiceRequest) => void;
 }
 
 /** "20 Jul 2026, 5:00 PM" — matches the mobile `d MMM yyyy, h:mm a` format. */
@@ -42,6 +43,7 @@ export function ServiceRequestsTable({
   onView,
   onCreateWorkOrder,
   onDelete,
+  onReopen,
 }: ServiceRequestsTableProps) {
   return (
     <>
@@ -104,9 +106,15 @@ export function ServiceRequestsTable({
                       <DropdownMenuItem onSelect={() => onCreateWorkOrder(request)}>
                         <Briefcase /> Create work order
                       </DropdownMenuItem>
-                      <DropdownMenuItem variant="destructive" onSelect={() => onDelete(request)}>
-                        <Trash2 /> Delete
-                      </DropdownMenuItem>
+                      {request.status === "cancelled" ? (
+                        <DropdownMenuItem onSelect={() => onReopen(request)}>
+                          <RotateCcw /> Reopen request
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem variant="destructive" onSelect={() => onDelete(request)}>
+                          <Trash2 /> Cancel request
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </td>
@@ -146,9 +154,15 @@ export function ServiceRequestsTable({
                       <DropdownMenuItem onSelect={() => onCreateWorkOrder(request)}>
                         <Briefcase /> Create work order
                       </DropdownMenuItem>
-                      <DropdownMenuItem variant="destructive" onSelect={() => onDelete(request)}>
-                        <Trash2 /> Delete
-                      </DropdownMenuItem>
+                      {request.status === "cancelled" ? (
+                        <DropdownMenuItem onSelect={() => onReopen(request)}>
+                          <RotateCcw /> Reopen request
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem variant="destructive" onSelect={() => onDelete(request)}>
+                          <Trash2 /> Cancel request
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

@@ -92,10 +92,36 @@ export async function fetchServiceRequests(): Promise<ServiceRequest[]> {
   return (data ?? []).map(mapServiceRequest);
 }
 
-/** Delete a service request. */
-export async function deleteServiceRequest(id: string): Promise<void> {
-  const { error } = await supabase.from(TABLE).delete().eq("id", id);
-  if (error) throw new Error("Could not delete the request. Please try again.");
+/**
+ * Cancel a service request (soft delete — sets status to "cancelled").
+ * Refuses if a work order has already been created from the request.
+ */
+export async function cancelServiceRequest(id: string): Promise<void> {
+  const { count, error: countError } = await supabase
+    .from("work_orders")
+    .select("id", { count: "exact", head: true })
+    .eq("service_request_id", id);
+  if (countError) throw new Error("Could not cancel the request. Please try again.");
+  if ((count ?? 0) > 0) {
+    throw new Error(
+      "This request has a work order attached. Delete the work order first.",
+    );
+  }
+
+  const { error } = await supabase
+    .from(TABLE)
+    .update({ status: "cancelled" })
+    .eq("id", id);
+  if (error) throw new Error("Could not cancel the request. Please try again.");
+}
+
+/** Reopen a cancelled service request — puts it back to "submitted". */
+export async function reopenServiceRequest(id: string): Promise<void> {
+  const { error } = await supabase
+    .from(TABLE)
+    .update({ status: "submitted" })
+    .eq("id", id);
+  if (error) throw new Error("Could not reopen the request. Please try again.");
 }
 
 /** What the public tracking page shows about a request. */

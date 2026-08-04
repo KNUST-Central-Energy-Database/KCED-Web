@@ -123,7 +123,7 @@ export function InviteUserDialog({ userRole, onInvited, open: externalOpen, onOp
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {USER_ROLES.map((r) => (
+                  {USER_ROLES.filter((r) => r.dbValue !== "admin").map((r) => (
                     <SelectItem key={r.dbValue} value={r.dbValue}>
                       {r.label}
                     </SelectItem>

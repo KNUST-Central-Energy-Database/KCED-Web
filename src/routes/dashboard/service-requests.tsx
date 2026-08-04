@@ -25,7 +25,10 @@ import {
   type ServiceRequest,
   type ServiceRequestStatus,
 } from "@/features/service_request/schema";
-import { fetchJurisdictions } from "@/features/service_request/services/service_request.service";
+import {
+  fetchJurisdictions,
+  reopenServiceRequest,
+} from "@/features/service_request/services/service_request.service";
 import { WorkOrderFormDialog } from "@/features/work_order/components/WorkOrderFormDialog";
 import { toast } from "sonner";
 
@@ -97,6 +100,16 @@ function ServiceRequests() {
     setDetailOpen(false);
     setDeleting(request);
     setDeleteOpen(true);
+  };
+  const reopen = async (request: ServiceRequest) => {
+    setDetailOpen(false);
+    try {
+      await reopenServiceRequest(request.id);
+      toast.success("Request reopened.");
+      reload();
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
   };
 
   const activeFilterCount =
@@ -216,6 +229,7 @@ function ServiceRequests() {
           onView={openView}
           onCreateWorkOrder={openCreateWorkOrder}
           onDelete={openDelete}
+          onReopen={reopen}
         />
       )}
 
@@ -225,6 +239,7 @@ function ServiceRequests() {
         onOpenChange={setDetailOpen}
         onCreateWorkOrder={openCreateWorkOrder}
         onDelete={openDelete}
+        onReopen={reopen}
       />
       <WorkOrderFormDialog
         order={null}

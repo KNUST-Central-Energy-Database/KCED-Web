@@ -44,6 +44,38 @@ export async function fetchAssets(): Promise<Asset[]> {
   return (data ?? []).map(mapAsset);
 }
 
+/** Create a new asset. Returns the created asset. */
+export async function createAsset(
+  asset: Pick<Asset, "assetCode" | "assetType" | "jurisdictionId"> &
+    Partial<Pick<Asset, "location" | "manufacturer" | "serialNumber" | "installationDate" | "condition" | "operationalStatus" | "observedIssues" | "lastMaintenance" | "nextMaintenance" | "specifications">>,
+): Promise<Asset> {
+  const payload: Record<string, unknown> = {
+    asset_code: asset.assetCode,
+    asset_type: asset.assetType,
+    jurisdiction_id: asset.jurisdictionId,
+  };
+  if (asset.location) payload.location = asset.location;
+  if (asset.manufacturer) payload.manufacturer = asset.manufacturer;
+  if (asset.serialNumber) payload.serial_number = asset.serialNumber;
+  if (asset.installationDate) payload.installation_date = asset.installationDate;
+  if (asset.condition) payload.condition = asset.condition;
+  if (asset.operationalStatus) payload.operational_status = asset.operationalStatus;
+  if (asset.observedIssues) payload.observed_issues = asset.observedIssues;
+  if (asset.lastMaintenance) payload.last_maintenance = asset.lastMaintenance;
+  if (asset.nextMaintenance) payload.next_maintenance = asset.nextMaintenance;
+  if (asset.specifications && Object.keys(asset.specifications).length > 0) {
+    payload.specifications = asset.specifications;
+  }
+
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert(payload)
+    .select("*, jurisdictions(name, code)")
+    .single();
+  if (error) throw error;
+  return mapAsset(data);
+}
+
 /** Update an asset's editable fields. */
 export async function updateAsset(
   id: string,

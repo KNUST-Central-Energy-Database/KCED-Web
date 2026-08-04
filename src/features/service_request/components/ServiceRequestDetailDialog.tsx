@@ -1,4 +1,4 @@
-import { Briefcase, Building2, MapPin, Phone, Trash2, User } from "lucide-react";
+import { Briefcase, Building2, MapPin, Phone, RotateCcw, Trash2, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ interface ServiceRequestDetailDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreateWorkOrder: (request: ServiceRequest) => void;
   onDelete: (request: ServiceRequest) => void;
+  onReopen: (request: ServiceRequest) => void;
 }
 
 /** "20 Jul 2026, 5:00 PM" — matches the mobile `d MMM yyyy, h:mm a` format. */
@@ -64,6 +65,7 @@ export function ServiceRequestDetailDialog({
   onOpenChange,
   onCreateWorkOrder,
   onDelete,
+  onReopen,
 }: ServiceRequestDetailDialogProps) {
   if (!request) return null;
   return (
@@ -132,10 +134,17 @@ export function ServiceRequestDetailDialog({
           <Button className="flex-1" onClick={() => onCreateWorkOrder(request)}>
             <Briefcase /> Create Work Order
           </Button>
-          <Button variant="destructive" size="icon-lg" onClick={() => onDelete(request)}>
-            <Trash2 />
-            <span className="sr-only">Delete request</span>
-          </Button>
+          {request.status === "cancelled" ? (
+            <Button variant="outline" size="icon-lg" onClick={() => onReopen(request)}>
+              <RotateCcw />
+              <span className="sr-only">Reopen request</span>
+            </Button>
+          ) : (
+            <Button variant="destructive" size="icon-lg" onClick={() => onDelete(request)}>
+              <Trash2 />
+              <span className="sr-only">Cancel request</span>
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
