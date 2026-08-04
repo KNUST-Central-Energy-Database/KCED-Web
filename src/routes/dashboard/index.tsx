@@ -10,6 +10,11 @@ import { Boxes, UserPlus, Briefcase } from "lucide-react";
 import { RequestsTrendChart } from "@/features/dashboard/components/RequestsTrendChart";
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { useMonthlyTrend } from "@/features/dashboard/hooks/useMonthlyTrend";
+import { InviteUserDialog } from "@/features/user/components/InviteUserDialog";
+import { fetchProfile, type Profile } from "@/features/profile/services/profile.service";
+import { useUsers } from "@/features/user/hooks/useUsers";
+import { WorkOrderFormDialog } from "@/features/work_order/components/WorkOrderFormDialog";
+import { useWorkOrders } from "@/features/work_order/hooks/useWorkOrders";
 
 // The `/dashboard` layout route (route.tsx) supplies the sidebar shell and the
 // requireAuth guard; this is the dashboard home, ported from the kced_mobile
@@ -30,13 +35,19 @@ function greeting(): string {
 function DashboardIndex() {
   const { data, loading, error, reload } = useDashboardData();
   const { data: trendData, loading: trendLoading, selected, selectMonth, monthOptions } = useMonthlyTrend();
+  const { reload: reloadUsers } = useUsers();
+  const { reload: reloadWorkOrders } = useWorkOrders();
   const [firstName, setFirstName] = useState<string>();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [workOrderOpen, setWorkOrderOpen] = useState(false);
 
   useEffect(() => {
     getSession().then((session) => {
       const fullName = session?.user?.user_metadata?.full_name as string | undefined;
       setFirstName(fullName?.trim().split(/\s+/)[0]);
     });
+    fetchProfile().then(setProfile).catch(() => {});
   }, []);
 
   const counts = data?.counts ?? null;
@@ -110,9 +121,9 @@ function DashboardIndex() {
             title="Create Work Order"
             subtext="Submit and track new work orders"
             icon={Briefcase}
-            to="/dashboard/work-orders"
             color="#6EE7B7"
             titleColor="#059669"
+            onClick={() => setWorkOrderOpen(true)}
           />
           <QuickActionCard
             title="New Asset"
@@ -126,12 +137,21 @@ function DashboardIndex() {
             title="Add Someone"
             subtext="Onboard new team members to the system"
             icon={UserPlus}
-            to="/dashboard/users"
             color="#C4B5FD"
             titleColor="#7C3AED"
+            onClick={() => setInviteOpen(true)}
           />
         </div>
       </section>
+
+      {profile && (profile.role === "admin" || profile.role === "manager") && (
+        <InviteUserDialog
+          userRole={profile.role}
+          onInvited={reloadUsers}
+          open={inviteOpen}
+          onOpenChange={setInviteOpen}
+        />
+      )}
 
       <RequestsTrendChart
         data={trendData}
@@ -149,6 +169,13 @@ function DashboardIndex() {
         />
         <RecentActivity loading={loading} />
       </div>
+
+      <WorkOrderFormDialog
+        order={null}
+        open={workOrderOpen}
+        onOpenChange={setWorkOrderOpen}
+        onSaved={reloadWorkOrders}
+      />
     </div>
   );
 }

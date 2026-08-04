@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CloudOff, Filter, Search, Users as UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ import {
   type UserStatus,
 } from "@/features/user/schema";
 import { UsersTable } from "@/features/user/components/UsersTable";
+import { InviteUserDialog } from "@/features/user/components/InviteUserDialog";
+import { fetchProfile, type Profile } from "@/features/profile/services/profile.service";
 
 export const Route = createFileRoute("/dashboard/users")({
   component: Users,
@@ -36,6 +38,11 @@ function Users() {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  useEffect(() => {
+    fetchProfile().then(setProfile).catch(() => {});
+  }, []);
 
   const filtered = useMemo(() => {
     let result = users;
@@ -63,13 +70,18 @@ function Users() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-2xl font-semibold tracking-tight">Users</h2>
-        <p className="text-sm text-muted-foreground">
-          {loading
-            ? "Loading users…"
-            : `Manage user accounts and their roles across the system`}
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-2xl font-semibold tracking-tight">Users</h2>
+          <p className="text-sm text-muted-foreground">
+            {loading
+              ? "Loading users…"
+              : `Manage user accounts and their roles across the system`}
+          </p>
+        </div>
+        {profile && (profile.role === "admin" || profile.role === "manager") && (
+          <InviteUserDialog userRole={profile.role} onInvited={reload} />
+        )}
       </div>
 
       <div className="flex items-center justify-between gap-3">

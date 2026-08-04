@@ -1,11 +1,13 @@
-import { Building2, ImageOff, MapPin } from "lucide-react";
+import { Building2, ImageOff, MapPin, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ASSET_SPEC_FIELDS, type SpecField } from "@/features/asset/asset-specs-config";
 import {
@@ -62,16 +64,24 @@ export function AssetDetailDialog({ asset, open, onOpenChange }: AssetDetailDial
   );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
-        <div className="flex items-start justify-between gap-2">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-4xl overflow-y-auto p-6" showCloseButton={false}>
+        <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-1">
-            <DialogTitle>{asset.assetCode}</DialogTitle>
-            <DialogDescription>{assetTypeLabel(asset.assetType)}</DialogDescription>
+            <SheetTitle>{asset.assetCode}</SheetTitle>
+            <SheetDescription>{assetTypeLabel(asset.assetType)}</SheetDescription>
           </div>
-          {asset.operationalStatus && (
-            <OperationalStatusPill status={asset.operationalStatus} />
-          )}
+          <div className="flex items-center gap-2">
+            {asset.operationalStatus && (
+              <OperationalStatusPill status={asset.operationalStatus} />
+            )}
+            <SheetClose asChild>
+              <Button variant="ghost" size="icon-sm">
+                <X />
+                <span className="sr-only">Close</span>
+              </Button>
+            </SheetClose>
+          </div>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -85,7 +95,7 @@ export function AssetDetailDialog({ asset, open, onOpenChange }: AssetDetailDial
             </Section>
             <Section title="Installed">
               <p className="text-sm font-medium">
-                {asset.installationDate ? formatDate(asset.installationDate) : "Unknown"}
+                {asset.installationDate ? formatDate(asset.installationDate) : "N/A"}
               </p>
             </Section>
           </div>
@@ -162,8 +172,8 @@ export function AssetDetailDialog({ asset, open, onOpenChange }: AssetDetailDial
             <NameplatePhoto url={asset.nameplatePhotoUrl} />
           </Section>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -184,7 +194,7 @@ function NameplatePhoto({ url }: { url: string | null }) {
 
   if (!url) {
     return (
-      <div className="flex h-24 w-40 flex-col items-center justify-center gap-1 rounded-[10px] border border-dashed border-outline bg-muted/50">
+      <div className="flex h-24 w-full flex-col items-center justify-center gap-1 rounded-[10px] border border-dashed border-outline bg-muted/50">
         <ImageOff className="size-4 text-muted-foreground" />
         <p className="text-xs text-muted-foreground">No nameplate photo</p>
       </div>
@@ -193,30 +203,28 @@ function NameplatePhoto({ url }: { url: string | null }) {
 
   if (state === "error") {
     return (
-      <div className="flex h-24 w-40 flex-col items-center justify-center gap-1 rounded-[10px] border border-outline bg-muted/50">
+      <div className="flex h-24 w-full flex-col items-center justify-center gap-1 rounded-[10px] border border-outline bg-muted/50">
         <ImageOff className="size-4 text-muted-foreground" />
         <p className="text-xs text-muted-foreground">Photo failed to load</p>
       </div>
     );
   }
 
-  return (
-    <a href={url} target="_blank" rel="noreferrer" className="relative w-fit">
-      {/* Absolute overlay while loading; the img keeps its layout box (just
-          invisible) — display:none would stop the browser loading it at all. */}
-      {state === "loading" && (
-        <Skeleton className="absolute inset-0 rounded-[10px]" />
-      )}
-      <img
-        ref={imgRef}
-        src={url}
-        alt="Nameplate photo"
-        className={`max-h-40 min-h-24 min-w-40 rounded-[10px] border border-outline object-cover ${
-          state === "loading" ? "opacity-0" : ""
-        }`}
-        onLoad={() => setState("loaded")}
-        onError={() => setState("error")}
-      />
-    </a>
-  );
+    return (
+      <a href={url} target="_blank" rel="noreferrer" className="relative block w-full">
+        {state === "loading" && (
+          <Skeleton className="absolute inset-0 rounded-[10px]" />
+        )}
+        <img
+          ref={imgRef}
+          src={url}
+          alt="Nameplate photo"
+          className={`w-full rounded-[10px] border border-outline object-cover ${
+            state === "loading" ? "opacity-0" : ""
+          }`}
+          onLoad={() => setState("loaded")}
+          onError={() => setState("error")}
+        />
+      </a>
+    );
 }

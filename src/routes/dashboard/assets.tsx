@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Boxes, CloudOff, Filter, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,8 @@ import {
   type AssetType,
   type OperationalStatus,
 } from "@/features/asset/schema";
+import type { Jurisdiction } from "@/features/service_request/schema";
+import { fetchJurisdictions } from "@/features/service_request/services/service_request.service";
 
 // The `/dashboard` layout route (route.tsx) supplies the sidebar shell and the
 // requireAuth guard; this is the assets page. Read-only for now — the list,
@@ -41,7 +43,13 @@ function Assets() {
   const { assets, loading, error, reload } = useAssets();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [jurisdictionFilter, setJurisdictionFilter] = useState<number | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
+
+  useEffect(() => {
+    fetchJurisdictions().then(setJurisdictions).catch(() => {});
+  }, []);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [viewing, setViewing] = useState<Asset | null>(null);
@@ -55,6 +63,9 @@ function Assets() {
     if (statusFilter !== "all") {
       result = result.filter((a) => a.operationalStatus === statusFilter);
     }
+    if (jurisdictionFilter !== "all") {
+      result = result.filter((a) => a.jurisdictionId === jurisdictionFilter);
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
@@ -66,7 +77,7 @@ function Assets() {
       );
     }
     return result;
-  }, [assets, typeFilter, statusFilter, searchQuery]);
+  }, [assets, typeFilter, statusFilter, jurisdictionFilter, searchQuery]);
 
   const openView = (asset: Asset) => {
     setViewing(asset);
@@ -74,7 +85,7 @@ function Assets() {
   };
 
   const activeFilterCount =
-    (typeFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0);
+    (typeFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (jurisdictionFilter !== "all" ? 1 : 0);
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -139,6 +150,19 @@ function Assets() {
                 ))}
               </DropdownMenuSubContent>
             </DropdownMenuSub>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Jurisdiction</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="max-h-64 overflow-y-auto">
+                <DropdownMenuItem onSelect={() => setJurisdictionFilter("all")}>
+                  All jurisdictions
+                </DropdownMenuItem>
+                {jurisdictions.map((j) => (
+                  <DropdownMenuItem key={j.id} onSelect={() => setJurisdictionFilter(j.id)}>
+                    {j.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
             {activeFilterCount > 0 && (
               <>
                 <DropdownMenuSeparator />
@@ -147,6 +171,7 @@ function Assets() {
                   onSelect={() => {
                     setTypeFilter("all");
                     setStatusFilter("all");
+                    setJurisdictionFilter("all");
                   }}
                 >
                   Clear all filters
