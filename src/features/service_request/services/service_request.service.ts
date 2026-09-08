@@ -6,6 +6,7 @@ import type {
   ServiceRequestStatus,
   ServiceRequestValues,
 } from "@/features/service_request/schema";
+import type { UserRole } from "@/features/profile/services/profile.service";
 
 export const TABLE = "service_requests";
 export const BUCKET = "Service Request Images";
@@ -79,15 +80,19 @@ function mapServiceRequest(row: Record<string, any>): ServiceRequest {
 }
 
 /**
- * Load all service requests, newest first, with their jurisdiction name/code.
- * The web counterpart of the kced_mobile `ServiceRequestsController.load()`
- * (admin-facing, so no jurisdiction scoping).
+ * Load service requests, newest first, with their jurisdiction name/code.
+ * Admins see all; managers/technicians see only their jurisdiction.
  */
-export async function fetchServiceRequests(): Promise<ServiceRequest[]> {
-  const { data, error } = await supabase
+export async function fetchServiceRequests(
+  role?: UserRole | null,
+  jurisdictionId?: number | null,
+): Promise<ServiceRequest[]> {
+  const scoped = role && role !== "admin" && jurisdictionId != null;
+  let query = supabase
     .from(TABLE)
-    .select("*, jurisdictions(name, code)")
-    .order("created_at", { ascending: false });
+    .select("*, jurisdictions(name, code)");
+  if (scoped) query = query.eq("jurisdiction_id", jurisdictionId!);
+  const { data, error } = await query.order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map(mapServiceRequest);
 }

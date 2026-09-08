@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CloudOff, Filter, Search, Users as UsersIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ import {
 import { UsersTable } from "@/features/user/components/UsersTable";
 import { InviteUserDialog } from "@/features/user/components/InviteUserDialog";
 import { EditUserDialog } from "@/features/user/components/EditUserDialog";
-import { fetchProfile, type Profile } from "@/features/profile/services/profile.service";
+import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/dashboard/users")({
   component: Users,
@@ -36,17 +36,13 @@ type RoleFilter = UserRole | "all";
 type StatusFilter = UserStatus | "all";
 
 function Users() {
+  const { profile } = useAuth();
   const { users, loading, error, reload } = useUsers();
   const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [editing, setEditing] = useState<User | null>(null);
   const [editOpen, setEditOpen] = useState(false);
-
-  useEffect(() => {
-    fetchProfile().then(setProfile).catch(() => {});
-  }, []);
 
   const openEdit = (user: User) => {
     setEditing(user);

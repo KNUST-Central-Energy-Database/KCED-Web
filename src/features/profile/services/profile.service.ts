@@ -24,6 +24,7 @@ export interface Profile {
   status: UserStatus;
   phone: string | null;
   avatarUrl: string | null;
+  jurisdictionId: number | null;
   jurisdictionName: string | null;
   /** Year the auth account was created, for "Member since". */
   memberSinceYear: number | null;
@@ -56,6 +57,7 @@ export async function fetchProfile(): Promise<Profile> {
     status: (data.status as UserStatus) ?? "active",
     phone: data.phone ?? null,
     avatarUrl: data.avatar_url ?? null,
+    jurisdictionId: data.jurisdiction_id ?? null,
     jurisdictionName: (data.jurisdictions as { name: string } | null)?.name ?? null,
     memberSinceYear: Number.isNaN(createdYear) ? null : createdYear,
   };

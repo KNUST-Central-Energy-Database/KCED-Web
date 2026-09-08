@@ -40,6 +40,7 @@ import {
   updateWorkOrder,
   type Technician,
 } from "@/features/work_order/services/work_order.service";
+import { useAuth } from "@/lib/auth-context";
 
 interface WorkOrderFormDialogProps {
   /** The work order being edited; null when creating. */
@@ -64,16 +65,16 @@ function isoToLocalInput(iso: string | null): string {
   );
 }
 
-function defaultsFor(order: WorkOrder | null, request?: ServiceRequest | null): WorkOrderValues {
+function defaultsFor(order: WorkOrder | null, request?: ServiceRequest | null, userJurisdictionId?: number | null, isAdmin?: boolean): WorkOrderValues {
   // Title column is varchar(100); a request's issue may be longer.
   const title = order?.title ?? request?.issue.slice(0, 100) ?? "";
+  const jurisdictionFromData = order?.jurisdictionId ?? request?.jurisdictionId;
+  // For non-admins creating standalone work orders, default to their jurisdiction
+  const jurisdictionDefault: number = jurisdictionFromData ?? (isAdmin ? (undefined as unknown as number) : (userJurisdictionId ?? (undefined as unknown as number)));
   return {
     title,
     description: order?.description ?? request?.description ?? "",
-    jurisdiction_id:
-      order?.jurisdictionId ??
-      request?.jurisdictionId ??
-      (undefined as unknown as number),
+    jurisdiction_id: jurisdictionDefault,
     category: order?.category ?? "repair",
     lead_technician_id: order?.leadTechnicianId ?? "",
     deadline: isoToLocalInput(order?.deadline ?? null),
@@ -87,6 +88,8 @@ function defaultsFor(order: WorkOrder | null, request?: ServiceRequest | null): 
  */
 export function WorkOrderFormDialog({ order, request, open, onOpenChange, onSaved }: WorkOrderFormDialogProps) {
   const editing = order !== null;
+  const { role, jurisdictionId: userJurisdictionId } = useAuth();
+  const isAdmin = role === "admin";
 
   const [jurisdictions, setJurisdictions] = useState<Jurisdiction[]>([]);
   const [technicians, setTechnicians] = useState<Technician[]>([]);
@@ -101,7 +104,7 @@ export function WorkOrderFormDialog({ order, request, open, onOpenChange, onSave
     formState: { errors, isSubmitting },
   } = useForm<WorkOrderValues>({
     resolver: zodResolver(workOrderSchema),
-    defaultValues: defaultsFor(order),
+    defaultValues: defaultsFor(order, request, userJurisdictionId, isAdmin),
   });
 
   const jurisdictionId = watch("jurisdiction_id");
@@ -110,8 +113,8 @@ export function WorkOrderFormDialog({ order, request, open, onOpenChange, onSave
   // Re-seed the form whenever the dialog opens (create blank / from a
   // request prefilled / edit prefilled).
   useEffect(() => {
-    if (open) reset(defaultsFor(order, request));
-  }, [open, order, request, reset]);
+    if (open) reset(defaultsFor(order, request, userJurisdictionId, isAdmin));
+  }, [open, order, request, reset, userJurisdictionId, isAdmin]);
 
   // Load the jurisdiction picker options once the dialog first opens.
   useEffect(() => {
@@ -213,6 +216,7 @@ export function WorkOrderFormDialog({ order, request, open, onOpenChange, onSave
               onValueChange={(val) =>
                 setValue("jurisdiction_id", Number(val), { shouldValidate: true })
               }
+              disabled={!isAdmin}
             >
               <SelectTrigger id="wo-jurisdiction" aria-invalid={!!errors.jurisdiction_id}>
                 <SelectValue placeholder="Select a jurisdiction" />

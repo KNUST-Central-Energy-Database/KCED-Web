@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { LogOut, UserRound, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -10,11 +9,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { UserAvatar } from '@/components/UserAvatar'
 import { signOut } from '@/features/auth/services/auth.service'
-import {
-  fetchProfile,
-  ROLE_LABELS,
-  type Profile,
-} from '@/features/profile/services/profile.service'
+import { ROLE_LABELS } from '@/features/profile/services/profile.service'
+import { useAuth } from '@/lib/auth-context'
 
 /** Primary dashboard navigation. `to` values must be real, existing routes. */
 const NAV_ITEMS = [
@@ -29,13 +25,7 @@ const NAV_ITEMS = [
 export function AppSidebar() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const [profile, setProfile] = useState<Profile | null>(null)
-
-  useEffect(() => {
-    fetchProfile()
-      .then(setProfile)
-      .catch(() => setProfile(null))
-  }, [])
+  const { profile } = useAuth()
 
   const handleSignOut = async () => {
     await signOut()

@@ -1,12 +1,10 @@
 import { supabase } from "@/lib/supabase";
+import type { UserRole } from "@/features/profile/services/profile.service";
 
 /**
  * Dashboard insight queries, mirroring the kced_mobile `HomeController`.
  * Each throws on failure so callers can catch → show an error state.
- *
- * Unlike mobile (where managers/technicians see jurisdiction-scoped counts),
- * the web portal is admin-facing, so counts are global. Revisit if roles land
- * in the web app.
+ * Admins see global counts; managers/technicians see jurisdiction-scoped counts.
  */
 
 /** Work order statuses, in display order. `dbValue` matches the DB rows. */
@@ -43,28 +41,40 @@ export interface DailyTrendPoint {
 }
 
 /**
- * Count rows in [table], optionally filtered to one work order status.
- * `head: true` keeps the payload empty — the count header still covers the
- * full result set (the web analogue of mobile's `limit(1).count(exact)`).
+ * Count rows in [table], optionally filtered to one work order status and/or
+ * jurisdiction. `head: true` keeps the payload empty — the count header still
+ * covers the full result set (the web analogue of mobile's `limit(1).count(exact)`).
  */
-async function countRows(table: string, status?: WorkOrderStatus): Promise<number> {
+async function countRows(
+  table: string,
+  status?: WorkOrderStatus,
+  jurisdictionId?: number | null,
+): Promise<number> {
   let query = supabase.from(table).select("id", { count: "exact", head: true });
   if (status) query = query.eq("status", status);
+  if (jurisdictionId != null) query = query.eq("jurisdiction_id", jurisdictionId);
 
   const { count, error } = await query;
   if (error) throw error;
   return count ?? 0;
 }
 
-/** Load the counts for the insight cards and the jobs status tiles. */
-export async function fetchDashboardCounts(): Promise<DashboardCounts> {
+/** Load the counts for the insight cards and the jobs status tiles.
+ *  Admins see global counts; managers/technicians see jurisdiction-scoped counts. */
+export async function fetchDashboardCounts(
+  role?: UserRole | null,
+  jurisdictionId?: number | null,
+): Promise<DashboardCounts> {
+  const scoped = role && role !== "admin" && jurisdictionId != null;
+  const jid = scoped ? jurisdictionId : null;
+
   const [userCount, workOrderCount, requestCount, assetCount, ...statusCounts] =
     await Promise.all([
-      countRows("users"),
-      countRows("work_orders"),
-      countRows("service_requests"),
-      countRows("assets"),
-      ...WORK_ORDER_STATUSES.map((s) => countRows("work_orders", s.dbValue)),
+      countRows("users", undefined, jid),
+      countRows("work_orders", undefined, jid),
+      countRows("service_requests", undefined, jid),
+      countRows("assets", undefined, jid),
+      ...WORK_ORDER_STATUSES.map((s) => countRows("work_orders", s.dbValue, jid)),
     ]);
 
   return {
@@ -105,16 +115,23 @@ export async function fetchJurisdictionShares(): Promise<JurisdictionShare[]> {
 /**
  * Service requests for a given month, bucketed by day.
  * Each entry has a formatted day label (e.g. "1 Jul") and the count.
+ * Admins see all; managers/technicians see only their jurisdiction.
  */
-export async function fetchDailyRequestTrend(year: number, month: number): Promise<DailyTrendPoint[]> {
+export async function fetchDailyRequestTrend(
+  year: number,
+  month: number,
+  jurisdictionId?: number | null,
+): Promise<DailyTrendPoint[]> {
   const monthStart = new Date(year, month, 1);
   const monthEnd = new Date(year, month + 1, 0);
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("service_requests")
     .select("created_at")
     .gte("created_at", monthStart.toISOString())
     .lte("created_at", monthEnd.toISOString());
+  if (jurisdictionId != null) query = query.eq("jurisdiction_id", jurisdictionId);
+  const { data, error } = await query;
   if (error) throw error;
 
   const daysInMonth = monthEnd.getDate();

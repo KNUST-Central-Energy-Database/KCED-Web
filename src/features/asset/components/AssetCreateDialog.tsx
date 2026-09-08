@@ -31,6 +31,7 @@ import { ASSET_SPEC_FIELDS } from "@/features/asset/asset-specs-config";
 import { createAsset } from "@/features/asset/services/asset.service";
 import { fetchJurisdictions } from "@/features/service_request/services/service_request.service";
 import type { Jurisdiction } from "@/features/service_request/schema";
+import { useAuth } from "@/lib/auth-context";
 
 interface AssetCreateDialogProps {
   open: boolean;
@@ -39,6 +40,8 @@ interface AssetCreateDialogProps {
 }
 
 export function AssetCreateDialog({ open, onOpenChange, onSaved }: AssetCreateDialogProps) {
+  const { role, jurisdictionId: userJurisdictionId } = useAuth();
+  const isAdmin = role === "admin";
   const [assetCode, setAssetCode] = useState("");
   const [assetType, setAssetType] = useState<AssetType | "">("");
   const [jurisdictionId, setJurisdictionId] = useState<number | null>(null);
@@ -66,7 +69,7 @@ export function AssetCreateDialog({ open, onOpenChange, onSaved }: AssetCreateDi
     if (!open) return;
     setAssetCode("");
     setAssetType("");
-    setJurisdictionId(null);
+    setJurisdictionId(isAdmin ? null : userJurisdictionId);
     setManufacturer("");
     setSerialNumber("");
     setLocation("");
@@ -77,7 +80,7 @@ export function AssetCreateDialog({ open, onOpenChange, onSaved }: AssetCreateDi
     setLastMaintenance("");
     setNextMaintenance("");
     setSpecifications({});
-  }, [open]);
+  }, [open, isAdmin, userJurisdictionId]);
 
   const specFields = assetType ? ASSET_SPEC_FIELDS[assetType] ?? [] : [];
 
@@ -177,7 +180,7 @@ export function AssetCreateDialog({ open, onOpenChange, onSaved }: AssetCreateDi
             </Field>
 
             <Field label="Jurisdiction *">
-              <Select value={jurisdictionId?.toString() ?? ""} onValueChange={(v) => setJurisdictionId(Number(v))} required>
+              <Select value={jurisdictionId?.toString() ?? ""} onValueChange={(v) => setJurisdictionId(Number(v))} required disabled={!isAdmin}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>

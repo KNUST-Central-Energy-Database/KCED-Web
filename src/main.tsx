@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import nProgress from "nprogress";
 import { routeTree } from "./routeTree.gen";
+import { AuthProvider } from "@/lib/auth-context";
 import "./styles.css";
 
 const router = createRouter({ routeTree });
@@ -29,6 +30,8 @@ declare module "@tanstack/react-router" {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </StrictMode>,
 );

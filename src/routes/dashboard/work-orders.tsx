@@ -229,6 +229,7 @@ function WorkOrders() {
         onOpenChange={setDetailOpen}
         onEdit={openEdit}
         onDelete={openDelete}
+        onAssetChanged={reload}
       />
       <WorkOrderFormDialog
         order={editing}

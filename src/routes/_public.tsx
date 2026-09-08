@@ -72,12 +72,8 @@ function HomePage() {
             {/* Non-urgent */}
             <div className="w-full flex flex-col gap-4 not-md:px-4">
               <h2 className="font-sans text-3xl font-normal md:text-5xl tracking-tight">
-                Non-urgent service request
+                Service Requests Portal
               </h2>
-              <p className="leading-relaxed max-w-prose text-lg">
-                For routine issues that don't require immediate attention — broken fixtures,
-                lighting faults, minor electrical faults, etc.
-              </p>
               <ul className="leading-relaxed list-disc marker:text-2xl px-6 marker:text-primary space-y-1 text-lg">
 
                 <li>
@@ -114,7 +110,7 @@ function HomePage() {
             {/* Emergency */}
             <div className="w-full flex flex-col gap-4 not-md:px-4">
               <h2 className="font-sans text-3xl font-normal md:text-5xl tracking-tight">
-                Immediate emergency request
+                Immediate Emergency Request
               </h2>
               <p className="leading-relaxed max-w-prose text-lg">
                 For urgent issues posing a safety risk — exposed wiring, power outages,
@@ -142,7 +138,7 @@ function HomePage() {
             {/* Planned maintenance */}
             <div className="w-full flex flex-col gap-4 not-md:px-4 md:mb-16">
               <h2 className="font-sans text-3xl font-normal md:text-5xl tracking-tight">
-                Planned maintenance
+                Planned Maintenance
               </h2>
               <p className="leading-relaxed max-w-prose text-lg">
                 Throughout the academic year, the KNUST Electrical Unit may carry out scheduled maintenance and upgrades to electrical fixtures, lighting systems, and building controls across campus. Work will be communicated to affected departments or halls in advance, and every effort will be made to minimise disruption to academic activities.

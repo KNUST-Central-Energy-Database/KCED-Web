@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchServiceRequests } from "@/features/service_request/services/service_request.service";
 import type { ServiceRequest } from "@/features/service_request/schema";
+import { useAuth } from "@/lib/auth-context";
 
 /**
  * Loads the service requests list. The web counterpart of the kced_mobile
@@ -8,6 +9,7 @@ import type { ServiceRequest } from "@/features/service_request/schema";
  * is also called after a delete.
  */
 export function useServiceRequests() {
+  const { role, jurisdictionId } = useAuth();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,14 +18,14 @@ export function useServiceRequests() {
     setLoading(true);
     setError(null);
     try {
-      setRequests(await fetchServiceRequests());
+      setRequests(await fetchServiceRequests(role, jurisdictionId));
     } catch (e) {
       console.error("Service requests load failed:", e);
       setError("Could not load service requests. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [role, jurisdictionId]);
 
   useEffect(() => {
     load();

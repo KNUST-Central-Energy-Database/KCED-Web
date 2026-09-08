@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchWorkOrders } from "@/features/work_order/services/work_order.service";
 import type { WorkOrder } from "@/features/work_order/schema";
+import { useAuth } from "@/lib/auth-context";
 
 /**
  * Loads the work orders list. The web counterpart of the kced_mobile
@@ -8,6 +9,7 @@ import type { WorkOrder } from "@/features/work_order/schema";
  * also called after create/edit/delete.
  */
 export function useWorkOrders() {
+  const { role, jurisdictionId } = useAuth();
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,14 +18,14 @@ export function useWorkOrders() {
     setLoading(true);
     setError(null);
     try {
-      setWorkOrders(await fetchWorkOrders());
+      setWorkOrders(await fetchWorkOrders(role, jurisdictionId));
     } catch (e) {
       console.error("Work orders load failed:", e);
       setError("Could not load work orders. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [role, jurisdictionId]);
 
   useEffect(() => {
     load();

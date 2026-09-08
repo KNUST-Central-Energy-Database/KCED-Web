@@ -3,6 +3,7 @@ import {
   fetchDashboardCounts,
   type DashboardCounts,
 } from "@/features/dashboard/services/dashboard.service";
+import { useAuth } from "@/lib/auth-context";
 
 export interface DashboardData {
   counts: DashboardCounts;
@@ -14,6 +15,7 @@ export interface DashboardData {
  * the mobile pull-to-refresh.
  */
 export function useDashboardData() {
+  const { role, jurisdictionId } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +24,7 @@ export function useDashboardData() {
     setLoading(true);
     setError(null);
     try {
-      const counts = await fetchDashboardCounts();
+      const counts = await fetchDashboardCounts(role, jurisdictionId);
       setData({ counts });
     } catch (e) {
       console.error("Dashboard load failed:", e);
@@ -30,7 +32,7 @@ export function useDashboardData() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [role, jurisdictionId]);
 
   useEffect(() => {
     load();

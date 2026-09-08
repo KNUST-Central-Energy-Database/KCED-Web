@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { Asset } from "@/features/asset/schema";
+import type { UserRole } from "@/features/profile/services/profile.service";
 
 const TABLE = "assets";
 
@@ -34,12 +35,18 @@ function mapAsset(row: Record<string, any>): Asset {
   };
 }
 
-/** Load all assets, newest first, with their jurisdiction name/code. */
-export async function fetchAssets(): Promise<Asset[]> {
-  const { data, error } = await supabase
+/** Load assets, newest first, with their jurisdiction name/code.
+ *  Admins see all; managers/technicians see only their jurisdiction. */
+export async function fetchAssets(
+  role?: UserRole | null,
+  jurisdictionId?: number | null,
+): Promise<Asset[]> {
+  const scoped = role && role !== "admin" && jurisdictionId != null;
+  let query = supabase
     .from(TABLE)
-    .select("*, jurisdictions(name, code)")
-    .order("created_at", { ascending: false });
+    .select("*, jurisdictions(name, code)");
+  if (scoped) query = query.eq("jurisdiction_id", jurisdictionId!);
+  const { data, error } = await query.order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map(mapAsset);
 }
@@ -108,4 +115,15 @@ export async function updateAsset(
 
   const { error } = await supabase.from(TABLE).update(payload).eq("id", id);
   if (error) throw new Error("Could not update asset. Please try again.");
+}
+
+/** Fetch a single asset by ID. Returns null when not found. */
+export async function fetchAssetById(id: string): Promise<Asset | null> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("*, jurisdictions(name, code)")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? mapAsset(data) : null;
 }

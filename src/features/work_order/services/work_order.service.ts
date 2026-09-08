@@ -1,11 +1,12 @@
 import { supabase } from "@/lib/supabase";
 import type { WorkOrder, WorkOrderValues } from "@/features/work_order/schema";
+import type { UserRole } from "@/features/profile/services/profile.service";
 
 const TABLE = "work_orders";
 
 /**
- * Work order CRUD, mirroring the kced_mobile `WorkOrdersController`. The web
- * portal is admin-facing, so queries are global (no jurisdiction scoping).
+ * Work order CRUD, mirroring the kced_mobile `WorkOrdersController`.
+ * Admins see all; managers/technicians see only their jurisdiction.
  * Each throws on failure so callers can catch → toast/error state.
  */
 
@@ -50,15 +51,21 @@ function mapWorkOrder(row: Record<string, any>): WorkOrder {
   };
 }
 
-/** Load all work orders, newest first, with their jurisdiction name/code and
- * lead technician's profile (for the hover card). */
-export async function fetchWorkOrders(): Promise<WorkOrder[]> {
-  const { data, error } = await supabase
+/** Load work orders, newest first, with their jurisdiction name/code and
+ *  lead technician's profile. Admins see all; managers/technicians see
+ *  only their jurisdiction. */
+export async function fetchWorkOrders(
+  role?: UserRole | null,
+  jurisdictionId?: number | null,
+): Promise<WorkOrder[]> {
+  const scoped = role && role !== "admin" && jurisdictionId != null;
+  let query = supabase
     .from(TABLE)
     .select(
       "*, jurisdictions(name, code), lead_technician:users!lead_technician_id(id, full_name, email, phone, avatar_url)",
-    )
-    .order("created_at", { ascending: false });
+    );
+  if (scoped) query = query.eq("jurisdiction_id", jurisdictionId!);
+  const { data, error } = await query.order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map(mapWorkOrder);
 }
@@ -115,6 +122,31 @@ export async function updateWorkOrder(id: string, values: WorkOrderValues): Prom
 export async function deleteWorkOrder(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq("id", id);
   if (error) throw new Error("Could not delete the work order. Please try again.");
+}
+
+/** Link (or unlink, when assetId is null) an asset to a work order. */
+export async function linkAsset(workOrderId: string, assetId: string | null): Promise<void> {
+  const { error } = await supabase
+    .from(TABLE)
+    .update({
+      asset_id: assetId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", workOrderId);
+  if (error) throw new Error("Could not link the asset. Please try again.");
+}
+
+/** All work orders linked to [assetId], newest first — the asset's work order history. */
+export async function fetchWorkOrderHistory(assetId: string): Promise<WorkOrder[]> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(
+      "*, jurisdictions(name, code), lead_technician:users!lead_technician_id(id, full_name, email, phone, avatar_url)",
+    )
+    .eq("asset_id", assetId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(mapWorkOrder);
 }
 
 /**

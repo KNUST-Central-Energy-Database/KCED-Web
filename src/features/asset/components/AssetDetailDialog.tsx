@@ -1,5 +1,5 @@
-import { Building2, ImageOff, MapPin, Pencil, X } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Building2, Calendar, ImageOff, MapPin, Pencil, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Sheet,
   SheetClose,
@@ -16,6 +16,9 @@ import {
   type Asset,
 } from "@/features/asset/schema";
 import { ConditionText, OperationalStatusPill } from "@/features/asset/components/AssetPills";
+import { WorkOrderStatusPill } from "@/features/work_order/components/WorkOrderStatusPill";
+import { displayNumber, isOverdue, type WorkOrder } from "@/features/work_order/schema";
+import { fetchWorkOrderHistory } from "@/features/work_order/services/work_order.service";
 
 interface AssetDetailDialogProps {
   /** The asset to show; null when the dialog is closed. */
@@ -56,6 +59,28 @@ function specValue(field: SpecField, raw: unknown): string {
  * extra keys in the jsonb are listed too rather than hidden.
  */
 export function AssetDetailDialog({ asset, open, onOpenChange, onEdit }: AssetDetailDialogProps) {
+  const [history, setHistory] = useState<WorkOrder[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState(false);
+
+  const loadHistory = useCallback(async () => {
+    if (!asset) return;
+    setHistoryLoading(true);
+    setHistoryError(false);
+    try {
+      const data = await fetchWorkOrderHistory(asset.id);
+      setHistory(data);
+    } catch {
+      setHistoryError(true);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [asset]);
+
+  useEffect(() => {
+    if (open && asset) loadHistory();
+  }, [open, asset, loadHistory]);
+
   if (!asset) return null;
 
   const specFields = ASSET_SPEC_FIELDS[asset.assetType] ?? [];
@@ -178,9 +203,65 @@ export function AssetDetailDialog({ asset, open, onOpenChange, onEdit }: AssetDe
           <Section title="Nameplate">
             <NameplatePhoto url={asset.nameplatePhotoUrl} />
           </Section>
+
+          {/* Work Order History */}
+          <Section title="Work Order History">
+            {historyLoading ? (
+              <div className="flex flex-col gap-2">
+                {Array.from({ length: 2 }, (_, i) => (
+                  <Skeleton key={i} className="h-16 w-full rounded-[10px]" />
+                ))}
+              </div>
+            ) : historyError ? (
+              <div className="flex flex-col items-center gap-2 py-4">
+                <p className="text-sm text-muted-foreground">Could not load work order history.</p>
+                <Button variant="ghost" size="sm" onClick={loadHistory}>
+                  Retry
+                </Button>
+              </div>
+            ) : history.length === 0 ? (
+              <p className="py-2 text-sm text-muted-foreground">
+                No work orders linked to this asset yet.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {history.map((wo) => (
+                  <WorkOrderHistoryTile key={wo.id} workOrder={wo} />
+                ))}
+              </div>
+            )}
+          </Section>
         </div>
       </SheetContent>
     </Sheet>
+  );
+}
+
+/** A single work order row in the asset's history list. */
+function WorkOrderHistoryTile({ workOrder }: { workOrder: WorkOrder }) {
+  const overdue = isOverdue(workOrder);
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-[10px] border border-outline px-3 py-2.5">
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <span className="truncate text-sm font-medium">
+          {workOrder.title || displayNumber(workOrder)}
+        </span>
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Calendar className="size-3" />
+          {workOrder.createdAt
+            ? new Date(workOrder.createdAt).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })
+            : "—"}
+          {overdue && (
+            <span className="text-destructive font-medium">Overdue</span>
+          )}
+        </span>
+      </div>
+      <WorkOrderStatusPill status={workOrder.status} />
+    </div>
   );
 }
 

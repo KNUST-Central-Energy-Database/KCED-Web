@@ -11,11 +11,11 @@ import { RequestsTrendChart } from "@/features/dashboard/components/RequestsTren
 import { useDashboardData } from "@/features/dashboard/hooks/useDashboardData";
 import { useMonthlyTrend } from "@/features/dashboard/hooks/useMonthlyTrend";
 import { InviteUserDialog } from "@/features/user/components/InviteUserDialog";
-import { fetchProfile, type Profile } from "@/features/profile/services/profile.service";
 import { useUsers } from "@/features/user/hooks/useUsers";
 import { WorkOrderFormDialog } from "@/features/work_order/components/WorkOrderFormDialog";
 import { useWorkOrders } from "@/features/work_order/hooks/useWorkOrders";
 import { AssetCreateDialog } from "@/features/asset/components/AssetCreateDialog";
+import { useAuth } from "@/lib/auth-context";
 
 // The `/dashboard` layout route (route.tsx) supplies the sidebar shell and the
 // requireAuth guard; this is the dashboard home, ported from the kced_mobile
@@ -34,12 +34,12 @@ function greeting(): string {
 }
 
 function DashboardIndex() {
+  const { profile } = useAuth();
   const { data, loading, error, reload } = useDashboardData();
   const { data: trendData, loading: trendLoading, selected, selectMonth, monthOptions } = useMonthlyTrend();
   const { reload: reloadUsers } = useUsers();
   const { reload: reloadWorkOrders } = useWorkOrders();
   const [firstName, setFirstName] = useState<string>();
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [workOrderOpen, setWorkOrderOpen] = useState(false);
   const [assetOpen, setAssetOpen] = useState(false);
@@ -49,7 +49,6 @@ function DashboardIndex() {
       const fullName = session?.user?.user_metadata?.full_name as string | undefined;
       setFirstName(fullName?.trim().split(/\s+/)[0]);
     });
-    fetchProfile().then(setProfile).catch(() => {});
   }, []);
 
   const counts = data?.counts ?? null;
@@ -113,38 +112,40 @@ function DashboardIndex() {
         </div>
       </section>
 
-      {/* Quick Actions */}
-      <section className="flex flex-col gap-3">
-        <div>
-          <h3 className="font-semibold tracking-tight">Quick Actions</h3>
-        </div>
-        <div className="grid gap-2.5 sm:grid-cols-3">
-          <QuickActionCard
-            title="Create Work Order"
-            subtext="Submit and track new work orders"
-            icon={Briefcase}
-            color="#6EE7B7"
-            titleColor="#059669"
-            onClick={() => setWorkOrderOpen(true)}
-          />
-          <QuickActionCard
-            title="New Asset"
-            subtext="Register and catalog new equipment"
-            icon={Boxes}
-            onClick={() => setAssetOpen(true)}
-            color="#FCD34D"
-            titleColor="#D97706"
-          />
-          <QuickActionCard
-            title="Add Someone"
-            subtext="Onboard new team members to the system"
-            icon={UserPlus}
-            color="#C4B5FD"
-            titleColor="#7C3AED"
-            onClick={() => setInviteOpen(true)}
-          />
-        </div>
-      </section>
+      {/* Quick Actions — managers & admins only */}
+      {(profile?.role === "admin" || profile?.role === "manager") && (
+        <section className="flex flex-col gap-3">
+          <div>
+            <h3 className="font-semibold tracking-tight">Quick Actions</h3>
+          </div>
+          <div className="grid gap-2.5 sm:grid-cols-3">
+            <QuickActionCard
+              title="Create Work Order"
+              subtext="Submit and track new work orders"
+              icon={Briefcase}
+              color="#6EE7B7"
+              titleColor="#059669"
+              onClick={() => setWorkOrderOpen(true)}
+            />
+            <QuickActionCard
+              title="New Asset"
+              subtext="Register and catalog new equipment"
+              icon={Boxes}
+              onClick={() => setAssetOpen(true)}
+              color="#FCD34D"
+              titleColor="#D97706"
+            />
+            <QuickActionCard
+              title="Add Someone"
+              subtext="Onboard new team members to the system"
+              icon={UserPlus}
+              color="#C4B5FD"
+              titleColor="#7C3AED"
+              onClick={() => setInviteOpen(true)}
+            />
+          </div>
+        </section>
+      )}
 
       {profile && (profile.role === "admin" || profile.role === "manager") && (
         <InviteUserDialog

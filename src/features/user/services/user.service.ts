@@ -1,12 +1,19 @@
 import { supabase } from "@/lib/supabase";
 import type { User, UserRole, UserStatus } from "@/features/user/schema";
+import type { UserRole as ProfileUserRole } from "@/features/profile/services/profile.service";
 
-/** Load all users, newest first, with their jurisdiction name. */
-export async function fetchUsers(): Promise<User[]> {
-  const { data, error } = await supabase
+/** Load users, newest first, with their jurisdiction name.
+ *  Admins see all; managers/technicians see only their jurisdiction. */
+export async function fetchUsers(
+  role?: ProfileUserRole | null,
+  jurisdictionId?: number | null,
+): Promise<User[]> {
+  const scoped = role && role !== "admin" && jurisdictionId != null;
+  let query = supabase
     .from("users")
-    .select("*, jurisdictions(name)")
-    .order("created_at", { ascending: false });
+    .select("*, jurisdictions(name)");
+  if (scoped) query = query.eq("jurisdiction_id", jurisdictionId!);
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) throw error;
 

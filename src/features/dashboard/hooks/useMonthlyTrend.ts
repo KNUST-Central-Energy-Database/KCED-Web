@@ -3,6 +3,7 @@ import {
   fetchDailyRequestTrend,
   type DailyTrendPoint,
 } from "@/features/dashboard/services/dashboard.service";
+import { useAuth } from "@/lib/auth-context";
 
 export interface MonthOption {
   value: string;
@@ -27,6 +28,7 @@ function buildMonthOptions(): MonthOption[] {
 }
 
 export function useMonthlyTrend() {
+  const { role, jurisdictionId } = useAuth();
   const monthOptions = useMemo(() => buildMonthOptions(), []);
   const current = monthOptions[0];
 
@@ -34,10 +36,13 @@ export function useMonthlyTrend() {
   const [data, setData] = useState<DailyTrendPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const scoped = role && role !== "admin" && jurisdictionId != null;
+  const jid = scoped ? jurisdictionId : null;
+
   const fetch = useCallback(async (year: number, month: number) => {
     setLoading(true);
     try {
-      const trend = await fetchDailyRequestTrend(year, month);
+      const trend = await fetchDailyRequestTrend(year, month, jid);
       setData(trend);
     } catch (e) {
       console.error("Monthly trend load failed:", e);
@@ -45,7 +50,7 @@ export function useMonthlyTrend() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [jid]);
 
   useEffect(() => {
     fetch(selected.year, selected.month);
