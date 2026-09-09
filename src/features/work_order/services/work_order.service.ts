@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { WorkOrder, WorkOrderValues } from "@/features/work_order/schema";
+import type { WorkOrderStatus } from "@/features/dashboard/services/dashboard.service";
 import type { UserRole } from "@/features/profile/services/profile.service";
 
 const TABLE = "work_orders";
@@ -52,8 +53,10 @@ function mapWorkOrder(row: Record<string, any>): WorkOrder {
 }
 
 /** Load work orders, newest first, with their jurisdiction name/code and
- *  lead technician's profile. Admins see all; managers/technicians see
- *  only their jurisdiction. */
+ *  lead technician's profile. Admins see all; managers see only their
+ *  jurisdiction; technicians see their jurisdiction PLUS any work orders
+ *  assigned to them (regardless of jurisdiction — needed for Maintenance
+ *  Yard techs who can be assigned anywhere). */
 export async function fetchWorkOrders(
   role?: UserRole | null,
   jurisdictionId?: number | null,
@@ -64,7 +67,22 @@ export async function fetchWorkOrders(
     .select(
       "*, jurisdictions(name, code), lead_technician:users!lead_technician_id(id, full_name, email, phone, avatar_url)",
     );
-  if (scoped) query = query.eq("jurisdiction_id", jurisdictionId!);
+  if (scoped) {
+    if (role === "technician") {
+      // Technicians see their jurisdiction's orders PLUS orders assigned to them.
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id;
+      if (userId) {
+        query = query.or(
+          `jurisdiction_id.eq.${jurisdictionId},lead_technician_id.eq.${userId}`,
+        );
+      } else {
+        query = query.eq("jurisdiction_id", jurisdictionId!);
+      }
+    } else {
+      query = query.eq("jurisdiction_id", jurisdictionId!);
+    }
+  }
   const { data, error } = await query.order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map(mapWorkOrder);
@@ -124,6 +142,29 @@ export async function deleteWorkOrder(id: string): Promise<void> {
   if (error) throw new Error("Could not delete the work order. Please try again.");
 }
 
+/**
+ * Transition a work order to [newStatus]. When completing, optional
+ * [completionNotes] are saved and `completed_at` is set automatically.
+ */
+export async function updateWorkOrderStatus(
+  id: string,
+  newStatus: WorkOrderStatus,
+  completionNotes?: string,
+): Promise<void> {
+  const update: Record<string, unknown> = {
+    status: newStatus,
+    updated_at: new Date().toISOString(),
+  };
+  if (newStatus === "completed") {
+    update.completed_at = new Date().toISOString();
+    if (completionNotes?.trim()) {
+      update.completion_notes = completionNotes.trim();
+    }
+  }
+  const { error } = await supabase.from(TABLE).update(update).eq("id", id);
+  if (error) throw new Error("Could not update the status. Please try again.");
+}
+
 /** Link (or unlink, when assetId is null) an asset to a work order. */
 export async function linkAsset(workOrderId: string, assetId: string | null): Promise<void> {
   const { error } = await supabase
@@ -149,9 +190,13 @@ export async function fetchWorkOrderHistory(assetId: string): Promise<WorkOrder[
   return (data ?? []).map(mapWorkOrder);
 }
 
+/** The Maintenance Yard jurisdiction ID — technicians here are assignable to any jurisdiction. */
+const MAINTENANCE_YARD_ID = 48;
+
 /**
  * Load active technicians in [jurisdictionId] for the lead technician picker,
- * ordered by name.
+ * ordered by name. Technicians in the Maintenance Yard jurisdiction (id 48)
+ * are included regardless of the selected jurisdiction.
  */
 export async function fetchTechnicians(jurisdictionId: number): Promise<Technician[]> {
   const { data, error } = await supabase
@@ -159,7 +204,7 @@ export async function fetchTechnicians(jurisdictionId: number): Promise<Technici
     .select("id, full_name, email")
     .eq("role", "technician")
     .eq("status", "active")
-    .eq("jurisdiction_id", jurisdictionId)
+    .or(`jurisdiction_id.eq.${jurisdictionId},jurisdiction_id.eq.${MAINTENANCE_YARD_ID}`)
     .order("full_name");
   if (error) throw error;
   return (data ?? []).map((row) => ({

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Building2, Link2, Package, Pencil, Trash2, Unlink, User } from "lucide-react";
+import { Building2, Link2, Package, Pencil, Play, CheckCircle, Trash2, Unlink, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,10 @@ import {
 } from "@/features/work_order/schema";
 import { WorkOrderStatusPill } from "@/features/work_order/components/WorkOrderStatusPill";
 import { LinkAssetDialog } from "@/features/work_order/components/LinkAssetDialog";
-import { linkAsset } from "@/features/work_order/services/work_order.service";
+import { linkAsset, updateWorkOrderStatus } from "@/features/work_order/services/work_order.service";
 import { fetchAssetById } from "@/features/asset/services/asset.service";
 import { assetTypeLabel, type Asset } from "@/features/asset/schema";
+import type { WorkOrderStatus } from "@/features/dashboard/services/dashboard.service";
 
 interface WorkOrderDetailDialogProps {
   /** The work order to show; null when the dialog is closed. */
@@ -30,6 +31,35 @@ interface WorkOrderDetailDialogProps {
   onDelete: (order: WorkOrder) => void;
   /** Called after linking/unlinking so the list can refresh. */
   onAssetChanged?: () => void;
+}
+
+function CompletionNotesForm({
+  onSubmit,
+  onCancel,
+}: {
+  onSubmit: (notes: string) => void;
+  onCancel: () => void;
+}) {
+  const [notes, setNotes] = useState("");
+
+  return (
+    <div className="flex flex-col gap-4">
+      <textarea
+        className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        placeholder="e.g. Replaced filter, tested OK"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+      />
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="button" onClick={() => onSubmit(notes)}>
+          Mark Complete
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 /** "20 Jul 2026, 5:00 PM" — matches the mobile `d MMM yyyy, h:mm a` format. */
@@ -82,6 +112,8 @@ export function WorkOrderDetailDialog({
   const [loadingAsset, setLoadingAsset] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
   const [unlinking, setUnlinking] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [completionNotesOpen, setCompletionNotesOpen] = useState(false);
 
   // Load the linked asset when the dialog opens or the order changes
   const loadLinkedAsset = useCallback(async () => {
@@ -128,6 +160,49 @@ export function WorkOrderDetailDialog({
       toast.error((err as Error).message);
     } finally {
       setUnlinking(false);
+    }
+  };
+
+  /** The next logical status transition for this order, or null when already completed. */
+  const nextStatus: WorkOrderStatus | null = (() => {
+    if (!order) return null;
+    switch (order.status) {
+      case "pending":
+        return "in progress";
+      case "overdue":
+        return "in progress";
+      case "in progress":
+        return "completed";
+      case "completed":
+        return null;
+      default:
+        return null;
+    }
+  })();
+
+  const nextStatusLabel = (() => {
+    switch (nextStatus) {
+      case "in progress":
+        return "Mark as In Progress";
+      case "completed":
+        return "Mark as Completed";
+      default:
+        return "";
+    }
+  })();
+
+  const handleStatusUpdate = async (completionNotes?: string) => {
+    if (!order || !nextStatus) return;
+    setUpdatingStatus(true);
+    try {
+      await updateWorkOrderStatus(order.id, nextStatus, completionNotes);
+      toast.success("Status updated.");
+      onAssetChanged?.(); // Trigger parent refresh
+      onOpenChange(false);
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setUpdatingStatus(false);
     }
   };
 
@@ -252,6 +327,31 @@ export function WorkOrderDetailDialog({
           </div>
 
           <div className="mt-2 flex gap-2">
+            {nextStatus && (
+              <Button
+                className="flex-1"
+                disabled={updatingStatus}
+                onClick={() => {
+                  if (nextStatus === "completed") {
+                    setCompletionNotesOpen(true);
+                  } else {
+                    handleStatusUpdate();
+                  }
+                }}
+              >
+                {updatingStatus ? (
+                  "Updating…"
+                ) : nextStatus === "completed" ? (
+                  <>
+                    <CheckCircle /> {nextStatusLabel}
+                  </>
+                ) : (
+                  <>
+                    <Play /> {nextStatusLabel}
+                  </>
+                )}
+              </Button>
+            )}
             <Button className="flex-1" onClick={() => onEdit(order)}>
               <Pencil /> Edit
             </Button>
@@ -270,6 +370,23 @@ export function WorkOrderDetailDialog({
         currentAssetId={order.assetId}
         onPicked={handleLink}
       />
+
+      {/* Completion Notes Dialog */}
+      <Dialog open={completionNotesOpen} onOpenChange={setCompletionNotesOpen}>
+        <DialogContent className="max-w-md">
+          <DialogTitle>Completion Notes</DialogTitle>
+          <DialogDescription>
+            Optional — add any notes about the completed work.
+          </DialogDescription>
+          <CompletionNotesForm
+            onSubmit={(notes) => {
+              setCompletionNotesOpen(false);
+              handleStatusUpdate(notes);
+            }}
+            onCancel={() => setCompletionNotesOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
