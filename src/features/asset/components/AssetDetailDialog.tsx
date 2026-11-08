@@ -16,9 +16,11 @@ import {
   type Asset,
 } from "@/features/asset/schema";
 import { ConditionText, OperationalStatusPill } from "@/features/asset/components/AssetPills";
+import { canEditAsset } from "@/features/asset/permissions";
 import { WorkOrderStatusPill } from "@/features/work_order/components/WorkOrderStatusPill";
 import { displayNumber, isOverdue, type WorkOrder } from "@/features/work_order/schema";
 import { fetchWorkOrderHistory } from "@/features/work_order/services/work_order.service";
+import { useAuth } from "@/lib/auth-context";
 
 interface AssetDetailDialogProps {
   /** The asset to show; null when the dialog is closed. */
@@ -59,6 +61,7 @@ function specValue(field: SpecField, raw: unknown): string {
  * extra keys in the jsonb are listed too rather than hidden.
  */
 export function AssetDetailDialog({ asset, open, onOpenChange, onEdit }: AssetDetailDialogProps) {
+  const { role, jurisdictionId, profile } = useAuth();
   const [history, setHistory] = useState<WorkOrder[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState(false);
@@ -83,6 +86,17 @@ export function AssetDetailDialog({ asset, open, onOpenChange, onEdit }: AssetDe
 
   if (!asset) return null;
 
+  // Edit is role-gated: admins any asset, managers their jurisdiction,
+  // technicians only with an open work-order assignment (from `history`,
+  // which doubles as the Work Order History section below).
+  const editable = canEditAsset({
+    role,
+    jurisdictionId,
+    asset,
+    currentUserId: profile?.id ?? null,
+    history,
+  });
+
   const specFields = ASSET_SPEC_FIELDS[asset.assetType] ?? [];
   const knownKeys = new Set(specFields.map((f) => f.key));
   const extraSpecs = Object.entries(asset.specifications).filter(
@@ -101,10 +115,12 @@ export function AssetDetailDialog({ asset, open, onOpenChange, onEdit }: AssetDe
             {asset.operationalStatus && (
               <OperationalStatusPill status={asset.operationalStatus} />
             )}
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => onEdit(asset)}>
-              <Pencil className="size-3.5" />
-              Edit
-            </Button>
+            {editable && (
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={() => onEdit(asset)}>
+                <Pencil className="size-3.5" />
+                Edit
+              </Button>
+            )}
             <SheetClose asChild>
               <Button variant="ghost" size="icon-sm">
                 <X />

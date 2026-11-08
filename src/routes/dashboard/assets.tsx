@@ -20,6 +20,8 @@ import { AssetDetailDialog } from "@/features/asset/components/AssetDetailDialog
 import { AssetFormDialog } from "@/features/asset/components/AssetFormDialog";
 import { AssetsTable } from "@/features/asset/components/AssetsTable";
 import { useAssets } from "@/features/asset/hooks/useAssets";
+import { canCreateAsset, hasOpenAssignment } from "@/features/asset/permissions";
+import { useAuth } from "@/lib/auth-context";
 import {
   ASSET_TYPES,
   OPERATIONAL_STATUSES,
@@ -43,6 +45,7 @@ type StatusFilter = OperationalStatus | "all";
 
 function Assets() {
   const { assets, loading, error, reload } = useAssets();
+  const { role, profile } = useAuth();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [jurisdictionFilter, setJurisdictionFilter] = useState<number | "all">("all");
@@ -90,7 +93,17 @@ function Assets() {
   const [editing, setEditing] = useState<Asset | null>(null);
   const [formOpen, setFormOpen] = useState(false);
 
-  const openEdit = (asset: Asset) => {
+  const openEdit = async (asset: Asset) => {
+    // Technicians need an open work-order assignment on the asset — the
+    // detail dialog hides Edit otherwise; re-check here as defense in depth.
+    if (role === "technician") {
+      try {
+        const allowed = profile !== null && (await hasOpenAssignment(asset.id, profile.id));
+        if (!allowed) return;
+      } catch {
+        return;
+      }
+    }
     setDetailOpen(false);
     setEditing(asset);
     setFormOpen(true);
@@ -110,10 +123,12 @@ function Assets() {
               : `View and manage all registered assets across jurisdictions`}
           </p>
         </div>
-        <Button size="sm" className="gap-1.5" onClick={() => setCreateOpen(true)}>
-          <Plus className="size-4" />
-          New Asset
-        </Button>
+        {canCreateAsset(role) && (
+          <Button size="sm" className="gap-1.5" onClick={() => setCreateOpen(true)}>
+            <Plus className="size-4" />
+            New Asset
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center justify-between gap-3">

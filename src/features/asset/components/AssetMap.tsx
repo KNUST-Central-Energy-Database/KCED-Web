@@ -1,7 +1,6 @@
 import Map, { Marker } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { Asset } from "@/features/asset/schema";
-import { assetTypeLabel } from "@/features/asset/schema";
+import { ASSET_TYPES, assetTypeLabel, type Asset } from "@/features/asset/schema";
 
 interface AssetMapProps {
   assets: Asset[];
@@ -47,7 +46,7 @@ export function AssetMap({ assets }: AssetMapProps) {
   }
 
   return (
-    <div className="h-[500px] w-full overflow-hidden rounded-4xl border border-outline">
+    <div className="relative h-[500px] w-full overflow-hidden rounded-4xl border border-outline">
       <Map
         initialViewState={{
           latitude: KNUST_CENTER.latitude,
@@ -78,6 +77,19 @@ export function AssetMap({ assets }: AssetMapProps) {
           </Marker>
         ))}
       </Map>
+      {geoAssets.length > 0 && (
+        <div className="absolute bottom-6 left-4 z-10 rounded-xl border border-outline bg-background px-3 py-2 shadow-lg">
+          {ASSET_TYPES.map((t) => (
+            <div key={t.dbValue} className="flex items-center gap-1.5 py-0.5">
+              <span
+                className="size-2.5 shrink-0 rounded-full border-2 border-white"
+                style={{ backgroundColor: TYPE_COLORS[t.dbValue] ?? "#6B6B6B" }}
+              />
+              <span className="text-xs text-muted-foreground">{t.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
